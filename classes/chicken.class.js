@@ -3,28 +3,30 @@ class Chicken extends MovableObject {
   y = 345;
   height = 81;
   width = 82.7;
-  images_walking = [
+  IMAGES_WALKING = [
     './img/3.Secuencias_Enemy_básico/Versión_Gallinita (estas salen por orden de la gallina gigantona)/1.Ga_paso_derecho.png',
     './img/3.Secuencias_Enemy_básico/Versión_Gallinita (estas salen por orden de la gallina gigantona)/2-Ga_centro.png',
     './img/3.Secuencias_Enemy_básico/Versión_Gallinita (estas salen por orden de la gallina gigantona)/3.Ga_paso izquierdo.png'
   ];
-  speed = 0.15;
+  speed = 0.15 + Math.random() / 4;
 
   constructor() {
     super().loadImage(
       "./img/3.Secuencias_Enemy_básico/Versión_Gallinita (estas salen por orden de la gallina gigantona)/1.Ga_paso_derecho.png"
     );
-    this.loadImages(this.images_walking);
+    this.loadImages(this.IMAGES_WALKING);
     this.animate();
-    this.moveLeft();
   }
 
+
   animate() {
+    
     setInterval(() => {
-      let i = this.currentImg % this.images_walking.length;
-      let path = this.images_walking[i];
-      this.img = this.imgCache[path];
-      this.currentImg++;
+      this.moveLeft();
+    }, 1000 / 60);
+
+    setInterval(() => {
+      this.playAnimation(this.IMAGES_WALKING);
     }, 150);
   }
 }

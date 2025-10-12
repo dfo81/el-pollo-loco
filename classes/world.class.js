@@ -1,34 +1,45 @@
 class World {
   character = new Character();
-  enemies = [
-    new Chicken(), 
-    new Chicken(), 
-    new Chicken()];
-  clouds = [
-    new Cloud()
-];
-  backgrounds = [
-    new Background('./img/5.Fondo/Capas/5.cielo_1920-1080px.png'),
-    new Background('./img/5.Fondo/Capas/3.Fondo3/1.png'),
-    new Background('./img/5.Fondo/Capas/2.Fondo2/1.png'),
-    new Background('./img/5.Fondo/Capas/1.suelo-fondo1/1.png')
-  ];
+  level = level1;
   canvas;
   ctx;
+  keyboard;
+  camera_x = 0;
 
-  constructor(canvas) {
+  constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
+    this.keyboard = keyboard;
     this.draw();
+    this.setWorld();
+    this.checkCollisions();
+  }
+
+  setWorld() {
+    this.character.world = this;
+  }
+
+  checkCollisions() {
+    setInterval(() => {
+      this.level.enemies.forEach((enemy) => {
+        if (this.character.isColliding(enemy)) {
+          this.character.energy -= 2;          
+        }
+       });
+    }, 100);
   }
 
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    this.addOjectsToMap(this.backgrounds);
+    this.ctx.translate(this.camera_x, 0);
+
+    this.addOjectsToMap(this.level.backgrounds);
+    this.addOjectsToMap(this.level.clouds);
+    this.addOjectsToMap(this.level.enemies);
     this.addToMap(this.character);
-    this.addOjectsToMap(this.enemies);
-    this.addOjectsToMap(this.clouds);
+
+    this.ctx.translate(-this.camera_x, 0);
 
     let self = this;
     requestAnimationFrame(function () {
@@ -37,12 +48,31 @@ class World {
   }
 
   addOjectsToMap(objects) {
-    objects.forEach(o => {
-        this.addToMap(o);
-    })
+    objects.forEach((obj) => {
+      this.addToMap(obj);
+    });
   }
 
   addToMap(mo) {
-    this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+    if (mo.otherDirection) {
+      this.flipImage(mo);
+    }
+    mo.draw(this.ctx);
+    mo.drawFrame(this.ctx);
+    if (mo.otherDirection) {
+      this.flipImageBack(mo);
+    }
+  }
+
+  flipImage(mo) {
+    this.ctx.save();
+    this.ctx.translate(mo.width, 0);
+    this.ctx.scale(-1, 1);
+    mo.x = mo.x * -1;
+  }
+
+  flipImageBack(mo) {
+    mo.x = mo.x * -1;
+    this.ctx.restore();
   }
 }
