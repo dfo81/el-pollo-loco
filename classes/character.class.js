@@ -9,7 +9,7 @@ class Character extends MovableObject {
     "./img/2.Secuencias_Personaje-Pepe-corrección/2.Secuencia_caminata/W-23.png",
     "./img/2.Secuencias_Personaje-Pepe-corrección/2.Secuencia_caminata/W-24.png",
     "./img/2.Secuencias_Personaje-Pepe-corrección/2.Secuencia_caminata/W-25.png",
-    "./img/2.Secuencias_Personaje-Pepe-corrección/2.Secuencia_caminata/W-26.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/2.Secuencia_caminata/W-26.png"
   ];
 
   IMAGES_JUMPING = [
@@ -22,7 +22,16 @@ class Character extends MovableObject {
     "./img/2.Secuencias_Personaje-Pepe-corrección/3.Secuencia_salto/J-37.png",
     "./img/2.Secuencias_Personaje-Pepe-corrección/3.Secuencia_salto/J-38.png",
     "./img/2.Secuencias_Personaje-Pepe-corrección/3.Secuencia_salto/J-39.png",
-    "./img/2.Secuencias_Personaje-Pepe-corrección/3.Secuencia_salto/J-40.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/3.Secuencia_salto/J-40.png"
+  ];
+  IMAGES_DEAD = [
+    "./img/2.Secuencias_Personaje-Pepe-corrección/5.Muerte/D-51.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/5.Muerte/D-52.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/5.Muerte/D-53.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/5.Muerte/D-54.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/5.Muerte/D-55.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/5.Muerte/D-56.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/5.Muerte/D-57.png"
   ];
   world;
   speed = 5;
@@ -33,6 +42,7 @@ class Character extends MovableObject {
     );
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
+    this.loadImages(this.IMAGES_DEAD);
     this.applyGravity();
     this.animate();
   }
@@ -54,7 +64,9 @@ class Character extends MovableObject {
     }, 1000 / 60);
 
     setInterval(() => {
-      if (this.isAboveGround()) {
+      if (this.isDead()) {
+        this.playAnimation(this.IMAGES_DEAD);
+      } else if (this.isAboveGround()) {
         this.playAnimation(this.IMAGES_JUMPING);
       } else {
         if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
