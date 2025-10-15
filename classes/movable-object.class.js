@@ -1,12 +1,11 @@
-class MovableObject {
-  img;
-  imgCache = {};
+class MovableObject extends DrawableObject {
   currentImg = 0;
   otherDirection = false;
   speed = 0.15;
   speedY = 0;
   acceleration = 0.5;
   energy = 100;
+  lastHit = 0;
 
   applyGravity() {
     setInterval(() => {
@@ -21,19 +20,6 @@ class MovableObject {
     return this.y < 190;
   }
 
-  loadImage(path) {
-    this.img = new Image();
-    this.img.src = path;
-  }
-
-  loadImages(arr) {
-    arr.forEach((path) => {
-      let img = new Image();
-      img.src = path;
-      this.imgCache[path] = img;
-    });
-  }
-
   moveRight() {
     this.x += this.speed;
   }
@@ -43,14 +29,10 @@ class MovableObject {
   }
 
   playAnimation(images) {
-    let i = this.currentImg % this.IMAGES_WALKING.length;
+    let i = this.currentImg % images.length;
     let path = images[i];
     this.img = this.imgCache[path];
     this.currentImg++;
-  }
-
-  draw(ctx) {
-    ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
   }
 
   drawFrame(ctx) {
@@ -64,17 +46,26 @@ class MovableObject {
   }
 
   isColliding(mo) {
-    return this.x + this.width > mo.x &&
+    return (
+      this.x + this.width > mo.x &&
       this.y + this.height > mo.y &&
       this.x < mo.x &&
-      this.y < mo.y + mo.height;
+      this.y < mo.y + mo.height
+    );
   }
 
   hit() {
     this.energy -= 5;
     if (this.energy < 0) {
       this.energy = 0;
+    } else {
+      this.lastHit = new Date().getTime();
     }
+  }
+
+  isHurt() {
+    let timepassed = new Date().getTime() - this.lastHit;
+    return timepassed < 1000;
   }
 
   isDead() {
