@@ -3,7 +3,7 @@ class MovableObject extends DrawableObject {
   otherDirection = false;
   speed = 0.15;
   speedY = 0;
-  acceleration = 0.5;
+  acceleration = 2.5;
   energy = 100;
   lastHit = 0;
 
@@ -13,11 +13,15 @@ class MovableObject extends DrawableObject {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;
       }
-    }, 1000 / 60);
+    }, 1000 / 25);
   }
 
   isAboveGround() {
-    return this.y < 190;
+    if (this instanceof ThrowableObject) {
+      return true;
+    } else {
+      return this.y < 190;
+    }
   }
 
   moveRight() {
