@@ -3,6 +3,18 @@ class Character extends MovableObject {
   y = 90;
   height = 240;
   width = 122;
+  IMAGES_IDLE = [
+    "./img/2.Secuencias_Personaje-Pepe-corrección/1.IDLE/IDLE/I-1.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/1.IDLE/IDLE/I-2.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/1.IDLE/IDLE/I-3.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/1.IDLE/IDLE/I-4.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/1.IDLE/IDLE/I-5.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/1.IDLE/IDLE/I-6.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/1.IDLE/IDLE/I-7.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/1.IDLE/IDLE/I-8.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/1.IDLE/IDLE/I-9.png",
+    "./img/2.Secuencias_Personaje-Pepe-corrección/1.IDLE/IDLE/I-10.png"
+  ]
   IMAGES_WALKING = [
     "./img/2.Secuencias_Personaje-Pepe-corrección/2.Secuencia_caminata/W-21.png",
     "./img/2.Secuencias_Personaje-Pepe-corrección/2.Secuencia_caminata/W-22.png",
@@ -49,6 +61,7 @@ class Character extends MovableObject {
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
     this.loadImages(this.IMAGES_HURT);
+    this.loadImages(this.IMAGES_IDLE);
     this.applyGravity();
     this.animate();
   }
@@ -76,10 +89,10 @@ class Character extends MovableObject {
         this.playAnimation(this.IMAGES_HURT);
       } else if (this.isAboveGround()) {
         this.playAnimation(this.IMAGES_JUMPING);
-      } else {
-        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+      } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
           this.playAnimation(this.IMAGES_WALKING);
-        }
+      } else {
+        this.playAnimation(this.IMAGES_IDLE);
       }
     }, 75);
   }
