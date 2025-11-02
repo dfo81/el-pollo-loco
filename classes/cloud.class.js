@@ -1,22 +1,12 @@
 class Cloud extends MovableObject {
-  height = 216;
-  width = 384;
-  IMAGES_CLOUD = ["./img/5.Fondo/Capas/4.nubes/1.png", "./img/5.Fondo/Capas/4.nubes/2.png"];
-  
-  constructor() {
-    super();
-    let randomImage = this.IMAGES_CLOUD[Math.floor(Math.random() * this.IMAGES_CLOUD.length)];
-    this.loadImage(randomImage);
-    this.x = Math.random() * 3500;
-    this.y = Math.random() * 100; 
-    this.speed = 0.15 + Math.random() * 0.2;
-    this.animate();
-  }
+    x = Math.random() * 2500;
+    y = Math.random() * 100;   
+    height = 180;
+    width = 300;
+    speed = Math.random() * 0.5; 
 
-  animate() {
-    setInterval(() => {
-      this.moveLeft();
-    }, 1000 / 60);
-  }
+    constructor() {
+        super().loadImage('assets/img/5_background/layers/4_clouds/1.png')
+        this.moveLeft(this.speed);
+    }
 }
- 
