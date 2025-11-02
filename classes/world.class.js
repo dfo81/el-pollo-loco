@@ -1,41 +1,60 @@
 class World {
-    character = new Character();
-    enemies = [ new Chicken(), new Chicken(), new Chicken];
-    clouds = [ new Cloud(), new Cloud(), new Cloud(), new Cloud() ]
-    backgrounds = [
-        new Background('assets/img/5_background/layers/air.png', 720),
-        new Background('assets/img/5_background/layers/3_third_layer/1.png', 720),
-        new Background('assets/img/5_background/layers/2_second_layer/1.png', 720),
-        new Background('assets/img/5_background/layers/1_first_layer/1.png', 720)];
-    ctx;
+  character = new Character();
+  enemies = level1.enemies;
+  clouds = level1.clouds;
+  backgrounds = level1.backgrounds;
+  canvas;
+  ctx;
+  keyboard;
+  camera_x = 0;
 
-    constructor(canvas) {
-        this.ctx = canvas.getContext('2d');
-        this.canvas = canvas;
-        this.draw();
+  constructor(canvas, keyboard) {
+    this.ctx = canvas.getContext("2d");
+    this.canvas = canvas;
+    this.keyboard = keyboard;
+    this.draw();
+    this.setWorld();
+  }
+
+  setWorld() {
+    this.character.world = this;
+  }
+
+  draw() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.ctx.translate(this.camera_x, 0);
+
+    this.addObjectsToMap(this.backgrounds);
+    this.addToMap(this.character);
+    this.addObjectsToMap(this.enemies);
+    this.addObjectsToMap(this.clouds);
+
+    this.ctx.translate(-this.camera_x, 0);
+
+    self = this; // draw wird immer wieder aufgerufen
+    requestAnimationFrame(function () {
+      self.draw(); // this funktioniert hier nicht daher self
+    });
+  }
+
+  addObjectsToMap(objects) {
+    objects.forEach((object) => {
+      this.addToMap(object);
+    });
+  }
+
+  addToMap(mo) {
+    if (mo.otherDirection) {
+        this.ctx.save();
+        this.ctx.translate(mo.width, 0);
+        mo.x = mo.x * -1;
+        this.ctx.scale(-1, 1);
     }
-
-    draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.addObjectsToMap(this.backgrounds);
-        this.addToMap(this.character);
-        this.addObjectsToMap(this.enemies);
-        this.addObjectsToMap(this.clouds);
-
-        self = this; // draw wird immer wieder aufgerufen
-        requestAnimationFrame(function(){
-            self.draw(); // this funktioniert hier nicht daher self
-        });
+    this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+    if (mo.otherDirection) {
+        mo.x = mo.x * -1;
+        this.ctx.restore();
     }
-
-    addObjectsToMap(objects) {
-        objects.forEach(object => {
-            this.addToMap(object);
-        });   
-    }
-
-    addToMap(mo) {
-        this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
-    }
+  }
 }
