@@ -36,6 +36,14 @@ class Character extends MovableObject {
     "assets/img/2_character_pepe/3_jump/J-39.png",
   ];
   world;
+  energy = 100;
+
+  offset = {
+    top: 100,
+    bottom: 50,
+    left: 20,
+    right: 20
+  }
 
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
@@ -49,11 +57,11 @@ class Character extends MovableObject {
   animate() {
     setInterval(() => {
       if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-        this.x += this.speed;
+        this.moveRight();
         this.otherDirection = false;
       } 
-      if (this.world.keyboard.LEFT && this.x > 50) {
-        this.x -= this.speed;
+      if (this.world.keyboard.LEFT && this.x > 55) {
+        this.moveLeft();
         this.otherDirection = true;
       }
       this.world.camera_x = -this.x + 50;
@@ -76,10 +84,9 @@ class Character extends MovableObject {
         this.playAnimation(this.IMAGES_JUMPING);
       }
       if (this.world.keyboard.JUMP && !this.isAboveGround()) {
-        this.speedY = 15;
+        this.jump();
       }
     }, 60);
   }
-
-  jump() {}
 }
+ 
