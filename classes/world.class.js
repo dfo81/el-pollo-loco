@@ -23,11 +23,9 @@ class World {
     setInterval(() => {
       this.level.enemies.forEach((enemy) => {
         if (this.character.isColliding(enemy)) {
-          this.character.energy -= 2;
-          console.log(this.character.energy);
-          
+          this.character.hit();
         }
-          });
+      });
     }, 100);
   }
 
@@ -39,12 +37,8 @@ class World {
     this.addObjectsToMap(this.level.backgrounds);
     this.addObjectsToMap(this.level.clouds);
 
-
-
     this.addObjectsToMap(this.level.enemies);
     this.addToMap(this.character);
-
-
 
     this.ctx.translate(-this.camera_x, 0);
 
@@ -82,6 +76,6 @@ class World {
 
   flipImageBack(mo) {
     mo.x = mo.x * -1;
-      this.ctx.restore();
+    this.ctx.restore();
   }
 }
