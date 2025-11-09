@@ -2,7 +2,7 @@ class Cloud extends MovableObject {
     y = Math.random() * 100;   
     height = 180;
     width = 300;
-    speed = Math.random() * 0.5; 
+    speed = Math.random() * 0.25; 
 
     constructor(imgPath, x) {
         super().loadImage(imgPath);

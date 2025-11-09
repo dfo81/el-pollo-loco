@@ -17,7 +17,7 @@ window.addEventListener('keydown', (e) => {
     if (e.key == ' ') {
          keyboard.JUMP = true;
     }
-    if (e.key = 'd') {
+    if (e.key == 'd') {
         keyboard.THROW = true;
     }            
 });
@@ -32,7 +32,7 @@ window.addEventListener('keyup', (e) => {
     if (e.key == ' ') {
         keyboard.JUMP = false;
     }
-    if (e.key = 'd') {
+    if (e.key == 'd') {
         keyboard.THROW = false;
     }            
 });

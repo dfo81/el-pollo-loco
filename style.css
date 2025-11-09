@@ -3,8 +3,41 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    height: 100vh;
+    background-image: url(./assets/img/5_background/wueste.jpg);
+    background-position: center;
+    background-size: cover;
+    overflow: hidden;
+}
+
+h1 {
+    font-family: zabars, Arial, Helvetica, sans-serif;
+    font-size: 78px;
+    letter-spacing: 3px;
+    color: rgb(255, 114, 7);
+    text-shadow: 2px 2px 5px black;
 }
 
 canvas {
     background-color: black;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 10px 10px 20px 5px rgba(0, 0, 0, 0.6);
+}
+
+@font-face {
+    font-family: zabars;
+    src: url(./assets/font/Zabars.ttf);
+}
+
+@media only screen and (max-width: 720px) {
+    canvas {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-height: 480px) {
+    canvas {
+        height: 100vh;
+    }
 }

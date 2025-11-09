@@ -20,8 +20,7 @@ class DrawablaObject {
     ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
   }
 
-  drawFrame(ctx) {
-    // hier die umrandung
+  /* drawFrame(ctx) {
     if (
       this instanceof Character ||
       this instanceof Chicken ||
@@ -33,5 +32,5 @@ class DrawablaObject {
       ctx.rect(this.x, this.y, this.width, this.height);
       ctx.stroke();
     }
-  }
+  } */
 }
