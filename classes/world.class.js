@@ -7,6 +7,7 @@ class World {
   camera_x = 0;
   statusBar = new StatusBar();
   throwableObjects = [];
+  throwHeld = false;
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
@@ -29,10 +30,12 @@ class World {
   }
 
   checkThrowObject() {
-    if (this.keyboard.THROW && !this.character.isDead()) {
-      let bottle = new ThrowableObject(this.character.x + 75, this.character.y + 100)
+    let isPressed = this.keyboard.THROW == true;
+    if (isPressed && !this.throwHeld && !this.character.isDead()) {
+      let bottle = new ThrowableObject(this.character.x + 75, this.character.y + 100);
       this.throwableObjects.push(bottle);
     }
+    this.throwHeld = isPressed;
   }
 
   checkCollision() {
