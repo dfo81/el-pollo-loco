@@ -1,6 +1,6 @@
 class Character extends MovableObject {
   x = 50;
-  y = 130-150;
+  y = 130 - 150;
   height = 300;
   width = 152.5;
   speed = 2.5;
@@ -10,7 +10,7 @@ class Character extends MovableObject {
     "/assets/img/2_character_pepe/2_walk/W-23.png",
     "/assets/img/2_character_pepe/2_walk/W-24.png",
     "/assets/img/2_character_pepe/2_walk/W-25.png",
-    "/assets/img/2_character_pepe/2_walk/W-26.png"
+    "/assets/img/2_character_pepe/2_walk/W-26.png",
   ];
   IMAGES_IDLE = [
     "assets/img/2_character_pepe/1_idle/idle/I-1.png",
@@ -22,7 +22,7 @@ class Character extends MovableObject {
     "assets/img/2_character_pepe/1_idle/idle/I-7.png",
     "assets/img/2_character_pepe/1_idle/idle/I-8.png",
     "assets/img/2_character_pepe/1_idle/idle/I-9.png",
-    "assets/img/2_character_pepe/1_idle/idle/I-10.png"
+    "assets/img/2_character_pepe/1_idle/idle/I-10.png",
   ];
   IMAGES_JUMPING = [
     "assets/img/2_character_pepe/3_jump/J-31.png",
@@ -33,7 +33,7 @@ class Character extends MovableObject {
     "assets/img/2_character_pepe/3_jump/J-36.png",
     "assets/img/2_character_pepe/3_jump/J-37.png",
     "assets/img/2_character_pepe/3_jump/J-38.png",
-    "assets/img/2_character_pepe/3_jump/J-39.png"
+    "assets/img/2_character_pepe/3_jump/J-39.png",
   ];
   IMAGES_DEAD = [
     "assets/img/2_character_pepe/5_dead/D-51.png",
@@ -42,13 +42,14 @@ class Character extends MovableObject {
     "assets/img/2_character_pepe/5_dead/D-54.png",
     "assets/img/2_character_pepe/5_dead/D-55.png",
     "assets/img/2_character_pepe/5_dead/D-56.png",
-    "assets/img/2_character_pepe/5_dead/D-57.png"
+    "assets/img/2_character_pepe/5_dead/D-57.png",
   ];
   IMAGES_HURT = [
     "assets/img/2_character_pepe/4_hurt/H-41.png",
     "assets/img/2_character_pepe/4_hurt/H-42.png",
-    "assets/img/2_character_pepe/4_hurt/H-43.png"
+    "assets/img/2_character_pepe/4_hurt/H-43.png",
   ];
+
   world;
   energy = 100;
 
@@ -56,8 +57,8 @@ class Character extends MovableObject {
     top: 100,
     bottom: 50,
     left: 20,
-    right: 20
-  }
+    right: 20,
+  };
 
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
@@ -72,10 +73,14 @@ class Character extends MovableObject {
 
   animate() {
     setInterval(() => {
-      if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x && !this.isDead()) {
+      if (
+        this.world.keyboard.RIGHT &&
+        this.x < this.world.level.level_end_x &&
+        !this.isDead()
+      ) {
         this.moveRight();
         this.otherDirection = false;
-      } 
+      }
       if (this.world.keyboard.LEFT && this.x > 55 && !this.isDead()) {
         this.moveLeft();
         this.otherDirection = true;
@@ -93,7 +98,7 @@ class Character extends MovableObject {
       if (!this.world.keyboard.RIGHT && !this.world.keyboard.LEFT) {
         this.playAnimation(this.IMAGES_IDLE);
       }
-    }, 250 );
+    }, 250);
 
     setInterval(() => {
       if (this.isAboveGround()) {
@@ -102,19 +107,18 @@ class Character extends MovableObject {
       if (this.world.keyboard.JUMP && !this.isAboveGround() && !this.isDead()) {
         this.jump();
       }
-    }, 50);
-
-    setInterval(() => {
-        if (this.isDead()){
-          this.playAnimation(this.IMAGES_DEAD);
-        }
     }, 100);
 
     setInterval(() => {
-        if (this.isHurt()) {
-          this.playAnimation(this.IMAGES_HURT);
-        }
+      if (this.isDead()) {
+        this.playAnimation(this.IMAGES_DEAD);
+      }
+    }, 100);
+
+    setInterval(() => {
+      if (this.isHurt()) {
+        this.playAnimation(this.IMAGES_HURT);
+      }
     }, 250);
   }
 }
- 
