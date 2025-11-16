@@ -1,38 +1,26 @@
 let canvas;
 let world;
 let keyboard = new Keyboard();
+let sounds = new Sounds();
+let isKeyDown = {};
 
 function init() {
-    canvas = document.getElementById('canvas');
-    world = new World(canvas, keyboard);    
+  canvas = document.getElementById("canvas");
+  world = new World(canvas, keyboard, sounds);
 }
 
-window.addEventListener('keydown', (e) => {
-    if (e.key == 'ArrowLeft') {
-        keyboard.LEFT = true;
-    }
-    if (e.key == 'ArrowRight') {
-        keyboard.RIGHT = true;
-    }
-    if (e.key == ' ') {
-         keyboard.JUMP = true;
-    }
-    if (e.key == 'd') {
-        keyboard.THROW = true;
-    }            
+window.addEventListener("keydown", (e) => {
+  if (!isKeyDown[e.code]) {
+    if (e.code === "Space") keyboard.JUMP_ONCE = true;
+    if (e.code === "KeyD") keyboard.THROW_ONCE = true;
+    if (e.code === "ArrowLeft") (keyboard.LEFT = true), sounds.walk.play();
+    if (e.code === "ArrowRight") (keyboard.RIGHT = true), sounds.walk.play();
+  }
+  isKeyDown[e.code] = true;
 });
 
-window.addEventListener('keyup', (e) => {
-    if (e.key == 'ArrowLeft') {
-        keyboard.LEFT = false;
-    }
-    if (e.key == 'ArrowRight') {
-        keyboard.RIGHT = false;
-    }
-    if (e.key == ' ') {
-        keyboard.JUMP = false;
-    }
-    if (e.key == 'd') {
-        keyboard.THROW = false;
-    }            
+window.addEventListener("keyup", (e) => {
+  isKeyDown[e.code] = false;
+  if (e.code === "ArrowLeft") (keyboard.LEFT = false), sounds.walk.pause();
+  if (e.code === "ArrowRight") (keyboard.RIGHT = false), sounds.walk.pause();
 });

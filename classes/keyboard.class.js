@@ -1,6 +1,6 @@
 class Keyboard {
     LEFT = false;
     RIGHT = false;
-    THROW = false;
-    JUMP = false;
+    THROW_ONCE = false;
+    JUMP_ONCE = false;
 }

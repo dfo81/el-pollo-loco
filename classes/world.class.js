@@ -6,8 +6,9 @@ class World {
   keyboard;
   camera_x = 0;
   statusBar = new StatusBar();
+  bossStatusBar = new BossStatusBar();
   throwableObjects = [];
-  throwHeld = false;
+  hasSplashed = false;  
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
@@ -26,25 +27,43 @@ class World {
     setInterval(() => {
       this.checkCollision();
       this.checkThrowObject();
-    },100);
+      this.bottleCollision();
+    }, 100);
   }
 
   checkThrowObject() {
-    let isPressed = this.keyboard.THROW == true;
-    if (isPressed && !this.throwHeld && !this.character.isDead()) {
-      let bottle = new ThrowableObject(this.character.x + 75, this.character.y + 100);
+    if (this.keyboard.THROW_ONCE && !this.character.isDead()) {
+      let bottle = new ThrowableObject(
+        this.character.x + 75,
+        this.character.y + 100,
+        this.character.otherDirection
+      );
       this.throwableObjects.push(bottle);
+      this.keyboard.THROW_ONCE = false;
     }
-    this.throwHeld = isPressed;
   }
 
   checkCollision() {
     this.level.enemies.forEach((enemy) => {
-        if (this.character.isColliding(enemy)) {
-          this.character.hit();
-          this.statusBar.setPercentage(this.character.energy);
+      if (this.character.isColliding(enemy)) {
+        this.character.hit();
+        this.statusBar.setPercentage(this.character.energy);
+      }
+    });
+  }
+
+  bottleCollision() {
+    for (let i = this.throwableObjects.length - 1; i >= 0; i--) {
+      let bottle = this.throwableObjects[i];
+      for (let j = this.level.enemies.length - 1; j >= 0; j--) {
+        let enemy = this.level.enemies[j];
+        if (bottle.isColliding(enemy) && !bottle.hasSplashed) {
+          clearInterval(bottle.rotationInterval);
+          bottle.splash();
+          enemy.hit();
         }
-      });
+      }
+    }
   }
 
   draw() {
@@ -58,6 +77,7 @@ class World {
     this.ctx.translate(-this.camera_x, 0);
 
     this.addToMap(this.statusBar);
+    this.addToMap(this.bossStatusBar);
 
     this.ctx.translate(this.camera_x, 0);
     this.addToMap(this.character);
@@ -79,10 +99,7 @@ class World {
     if (mo.otherDirection) {
       this.flipImage(mo);
     }
-
     mo.draw(this.ctx);
-    /* mo.drawFrame(this.ctx); */ //frameset
-
     if (mo.otherDirection) {
       this.flipImageBack(mo);
     }
