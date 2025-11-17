@@ -33,9 +33,10 @@ class World {
 
   checkThrowObject() {
     if (this.keyboard.THROW_ONCE && !this.character.isDead()) {
+      let offsetX = this.character.otherDirection ? -10 : 75;
       let bottle = new ThrowableObject(
-        this.character.x + 75,
-        this.character.y + 100,
+        this.character.x + offsetX,
+        this.character.y + 120,
         this.character.otherDirection
       );
       this.throwableObjects.push(bottle);
@@ -45,7 +46,7 @@ class World {
 
   checkCollision() {
     this.level.enemies.forEach((enemy) => {
-      if (this.character.isColliding(enemy)) {
+      if (this.character.isColliding(enemy) && !this.character.isHurt()) {
         this.character.hit();
         this.statusBar.setPercentage(this.character.energy);
       }
@@ -61,6 +62,9 @@ class World {
           clearInterval(bottle.rotationInterval);
           bottle.splash();
           enemy.hit();
+          if (enemy instanceof Boss) {
+            this.bossStatusBar.setPercentage(enemy.energy);
+          }
         }
       }
     }

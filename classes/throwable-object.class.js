@@ -29,6 +29,7 @@ class ThrowableObject extends MovableObject {
   throw() {
     this.speedY = 10;
     this.applyGravity();
+    sounds.throw.play();
     this.accelerationInterval = setInterval(() => {
       if (this.otherDirection) {
         this.x -= 15; // nach links werfen

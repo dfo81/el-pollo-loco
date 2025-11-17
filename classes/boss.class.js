@@ -14,6 +14,7 @@ class Boss extends MovableObject {
     "assets/img/4_enemie_boss_chicken/2_alert/G11.png",
     "assets/img/4_enemie_boss_chicken/2_alert/G12.png",
   ];
+  energy = 100;
 
   constructor() {
     super().loadImage(this.IMAGES_BOSS_ALERT[0]);
