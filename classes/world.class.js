@@ -8,7 +8,7 @@ class World {
   statusBar = new StatusBar();
   bossStatusBar = new BossStatusBar();
   throwableObjects = [];
-  hasSplashed = false;  
+  hasSplashed = false;
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
@@ -28,7 +28,7 @@ class World {
       this.checkCollision();
       this.checkThrowObject();
       this.bottleCollision();
-    }, 100);
+    }, 1000 / 60); // gleiche Tickrate wie applyGravity
   }
 
   checkThrowObject() {
@@ -45,12 +45,22 @@ class World {
   }
 
   checkCollision() {
-    this.level.enemies.forEach((enemy) => {
-      if (this.character.isColliding(enemy) && !this.character.isHurt()) {
+    for (let i = this.level.enemies.length - 1; i >= 0; i--) {
+      const enemy = this.level.enemies[i];
+      if (!this.character.isColliding(enemy)) {
+        continue;
+      }
+      if (
+        this.character.isAboveGround() &&
+        this.character.speedY < 0
+      ) {
+        this.level.enemies.splice(i, 1);
+        this.character.speedY = 15;
+      } else if (!this.character.isHurt()) {
         this.character.hit();
         this.statusBar.setPercentage(this.character.energy);
       }
-    });
+    }
   }
 
   bottleCollision() {
@@ -59,11 +69,12 @@ class World {
       for (let j = this.level.enemies.length - 1; j >= 0; j--) {
         let enemy = this.level.enemies[j];
         if (bottle.isColliding(enemy) && !bottle.hasSplashed) {
-          clearInterval(bottle.rotationInterval);
           bottle.splash();
-          enemy.hit();
           if (enemy instanceof Boss) {
+            enemy.hit();
             this.bossStatusBar.setPercentage(enemy.energy);
+          } else {
+            this.level.enemies.splice(j, 1);
           }
         }
       }

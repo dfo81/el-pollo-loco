@@ -21,6 +21,9 @@ window.addEventListener("keydown", (e) => {
 
 window.addEventListener("keyup", (e) => {
   isKeyDown[e.code] = false;
-  if (e.code === "ArrowLeft") (keyboard.LEFT = false), sounds.walk.pause();
-  if (e.code === "ArrowRight") (keyboard.RIGHT = false), sounds.walk.pause();
+  if (e.code === "ArrowLeft") (keyboard.LEFT = false);
+  if (e.code === "ArrowRight") (keyboard.RIGHT = false);
+  if (!keyboard.LEFT && !keyboard.RIGHT) {
+    sounds.walk.stop();
+  }
 });
