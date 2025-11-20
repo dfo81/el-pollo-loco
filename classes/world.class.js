@@ -45,22 +45,13 @@ class World {
   }
 
   checkCollision() {
-    for (let i = this.level.enemies.length - 1; i >= 0; i--) {
-      const enemy = this.level.enemies[i];
-      if (!this.character.isColliding(enemy)) {
-        continue;
+    this.level.enemies.forEach((enemy) => {
+      if (this.character.isColliding(enemy)) {
+        if (this.character.isAboveGround() && this.character.speedY < 0) {
+          console.log("e");
+        }
       }
-      if (
-        this.character.isAboveGround() &&
-        this.character.speedY < 0
-      ) {
-        this.level.enemies.splice(i, 1);
-        this.character.speedY = 15;
-      } else if (!this.character.isHurt()) {
-        this.character.hit();
-        this.statusBar.setPercentage(this.character.energy);
-      }
-    }
+    });
   }
 
   bottleCollision() {
@@ -74,6 +65,7 @@ class World {
             enemy.hit();
             this.bossStatusBar.setPercentage(enemy.energy);
           } else {
+            sounds.enemy.play();
             this.level.enemies.splice(j, 1);
           }
         }
@@ -115,6 +107,8 @@ class World {
       this.flipImage(mo);
     }
     mo.draw(this.ctx);
+    mo.drawFrame(this.ctx);
+
     if (mo.otherDirection) {
       this.flipImageBack(mo);
     }

@@ -18,9 +18,17 @@ class DrawablaObject {
   }
 
   draw(ctx) {
-
     ctx.globalAlpha = this.opacity;
     ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+  }
 
+  drawFrame(ctx) {
+    if (this instanceof Character || this instanceof Chicken) {
+      ctx.beginPath();
+      ctx.lineWidth = "1";
+      ctx.strokeStyle = "white";
+      ctx.rect(this.x, this.y, this.width, this.height);
+      ctx.stroke();
+    }
   }
 }

@@ -11,10 +11,10 @@ function init() {
 
 window.addEventListener("keydown", (e) => {
   if (!isKeyDown[e.code]) {
-    if (e.code === "Space") keyboard.JUMP_ONCE = true;
-    if (e.code === "KeyD") keyboard.THROW_ONCE = true;
-    if (e.code === "ArrowLeft") (keyboard.LEFT = true), sounds.walk.play();
-    if (e.code === "ArrowRight") (keyboard.RIGHT = true), sounds.walk.play();
+    if (e.code === "Space") keyboard.JUMP_ONCE = true, sounds.jump.play();
+    if (e.code === "KeyD") keyboard.THROW_ONCE = true, sounds.throw.play();
+    if (e.code === "ArrowLeft") keyboard.LEFT = true, sounds.walk.play();
+    if (e.code === "ArrowRight") keyboard.RIGHT = true, sounds.walk.play();
   }
   isKeyDown[e.code] = true;
 });
