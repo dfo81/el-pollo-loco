@@ -27,8 +27,10 @@ class World {
     setInterval(() => {
       this.checkCollision();
       this.checkThrowObject();
-      this.bottleCollision();
-    }, 1000 / 60); // gleiche Tickrate wie applyGravity
+      this.bottleCollision();      
+      console.log(this.character.isAboveGround(), this.character.y) ;
+      
+    }, 1000 / 30); 
   }
 
   checkThrowObject() {
@@ -45,32 +47,36 @@ class World {
   }
 
   checkCollision() {
-    this.level.enemies.forEach((enemy) => {
-      if (this.character.isColliding(enemy)) {
-        if (this.character.isAboveGround() && this.character.speedY < 0) {
-          console.log("e");
+    this.level.enemies.forEach((enemy, index) => {
+      if (this.character.isColliding(enemy) && !this.character.isHurt()) {
+        if (this.character.isAboveGround() && this.character.speedY < 0 && !(enemy instanceof Boss)) {
+          this.character.speedY = 12;
+          sounds.DEAD.play();
+          this.level.enemies.splice(index, 1);
+        } else {
+          this.character.hit();
+          sounds.HURT.play();          
+          this.statusBar.setPercentage(this.character.energy);
         }
       }
     });
   }
 
   bottleCollision() {
-    for (let i = this.throwableObjects.length - 1; i >= 0; i--) {
-      let bottle = this.throwableObjects[i];
-      for (let j = this.level.enemies.length - 1; j >= 0; j--) {
-        let enemy = this.level.enemies[j];
-        if (bottle.isColliding(enemy) && !bottle.hasSplashed) {
-          bottle.splash();
+    this.throwableObjects.forEach((to) => {    
+      this.level.enemies.forEach((enemy, index) => {
+        if (to.isColliding(enemy) && !to.hasSplashed) {
+          to.splash();
           if (enemy instanceof Boss) {
             enemy.hit();
             this.bossStatusBar.setPercentage(enemy.energy);
           } else {
-            sounds.enemy.play();
-            this.level.enemies.splice(j, 1);
+            sounds.DEAD.play();
+            this.level.enemies.splice(index, 1);
           }
         }
-      }
-    }
+      });
+    });
   }
 
   draw() {

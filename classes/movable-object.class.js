@@ -3,12 +3,13 @@ class MovableObject extends DrawablaObject {
   speedY = 0;
   acceleration = 0.75;
   offset = {
-    top: 10,
-    bottom: 10,
+    top: 0,
+    bottom: 20,
     left: 20,
     right: 20,
   };
   lastHit = 0;
+  lastAnimationTime = 0;
 
   applyGravity() {
     setInterval(() => {
@@ -23,10 +24,10 @@ class MovableObject extends DrawablaObject {
     if (this instanceof ThrowableObject) {
       return true;
     } else {
-      return this.y < 134.75;
+      return this.y < 130;
     }
   }
-
+ 
   isColliding(mo) {
     return (
       this.x + this.width - this.offset.right > mo.x + mo.offset.left &&
@@ -59,9 +60,15 @@ class MovableObject extends DrawablaObject {
   }
   moveRight() {
     this.x += this.speed;
-  }
+   }
 
-  playAnimation(images) {
+  playAnimation(images, fps) {
+    let now = Date.now();
+    let frameDuration = 1000 / fps;
+    if (now - this.lastAnimationTime < frameDuration) {
+      return; 
+    }
+    this.lastAnimationTime = now;
     let i = this.currentImage % images.length;
     let path = images[i];
     this.img = this.imageCache[path];

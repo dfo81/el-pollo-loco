@@ -6,15 +6,15 @@ let isKeyDown = {};
 
 function init() {
   canvas = document.getElementById("canvas");
-  world = new World(canvas, keyboard, sounds);
+  world = new World(canvas, keyboard, sounds);  
 }
 
 window.addEventListener("keydown", (e) => {
   if (!isKeyDown[e.code]) {
-    if (e.code === "Space") keyboard.JUMP_ONCE = true, sounds.jump.play();
-    if (e.code === "KeyD") keyboard.THROW_ONCE = true, sounds.throw.play();
-    if (e.code === "ArrowLeft") keyboard.LEFT = true, sounds.walk.play();
-    if (e.code === "ArrowRight") keyboard.RIGHT = true, sounds.walk.play();
+    if (e.code === "Space") keyboard.JUMP_ONCE = true,  sounds.JUMP.play();
+    if (e.code === "KeyD") keyboard.THROW_ONCE = true, sounds.THROW.play();
+    if (e.code === "ArrowLeft") keyboard.LEFT = true, sounds.WALK.play();
+    if (e.code === "ArrowRight") keyboard.RIGHT = true, sounds.WALK.play();
   }
   isKeyDown[e.code] = true;
 });
@@ -24,6 +24,6 @@ window.addEventListener("keyup", (e) => {
   if (e.code === "ArrowLeft") (keyboard.LEFT = false);
   if (e.code === "ArrowRight") (keyboard.RIGHT = false);
   if (!keyboard.LEFT && !keyboard.RIGHT) {
-    sounds.walk.stop();
+    sounds.WALK.stop();
   }
 });

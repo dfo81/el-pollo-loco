@@ -21,9 +21,9 @@ class DrawablaObject {
     ctx.globalAlpha = this.opacity;
     ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
   }
-
+ 
   drawFrame(ctx) {
-    if (this instanceof Character || this instanceof Chicken) {
+    if (this instanceof Character || this instanceof Chicken || this instanceof Boss) {
       ctx.beginPath();
       ctx.lineWidth = "1";
       ctx.strokeStyle = "white";

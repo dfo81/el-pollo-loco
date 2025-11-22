@@ -44,7 +44,7 @@ class ThrowableObject extends MovableObject {
   splash() {
     if (this.hasSplashed) return;
     this.hasSplashed = true;
-    sounds.splash.play();
+    sounds.SPLASH.play();
     this.speedY = 0;
     clearInterval(this.accelerationInterval);
     clearInterval(this.rotationInterval);
