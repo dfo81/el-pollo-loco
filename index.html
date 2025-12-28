@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>El pollo loco</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
     <script src="./classes/drawable-object.class.js"></script>
     <script src="./classes/movable-object.class.js"></script>
     <script src="./classes/keyboard.class.js"></script>
@@ -14,7 +14,6 @@
     <script src="./classes/character.class.js"></script>
     <script src="./classes/chicken.class.js"></script>
     <script src="./classes/cloud.class.js"></script>
-    
     <script src="./classes/boss-status-bar.class.js"></script>
     <script src="./classes/bottle-status-bar.class.js"></script>
     <script src="./classes/coins-status-bar.class.js"></script>
@@ -26,13 +25,17 @@
     <script src="./classes/boss.class.js"></script>
     <script src="./levels/level1.js"></script>
     <script src="./game.js"></script>
-</head>
-<body onload="init()">
-        <!-- <h1>El pollo loco</h1> --> 
-
-    <canvas id="canvas" width="720" height="480">
-
-    </canvas>
-
-</body>
+  </head>
+  <body>
+    <div class="game">
+      <div id="startScreen">
+        <img
+          src="assets/img/9_intro_outro_screens/start/startscreen_1.png"
+          alt="start screen"
+        />
+        <img id="startButton" onclick="startGame()" />
+      </div>
+      <canvas id="canvas" width="720" height="480"></canvas>
+    </div>
+  </body>
 </html>

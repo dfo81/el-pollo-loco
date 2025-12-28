@@ -4,15 +4,17 @@ let keyboard = new Keyboard();
 let sounds = new Sounds();
 let isKeyDown = {};
 
-function init() {
+function startGame() {
+  document.getElementById('startScreen').classList.add('d-none')
+  sounds.MUSIC.play();
   canvas = document.getElementById("canvas");
-  world = new World(canvas, keyboard, sounds);  
+  world = new World(canvas, keyboard, sounds); 
 }
 
 window.addEventListener("keydown", (e) => {
   if (!isKeyDown[e.code]) {
     if (e.code === "Space") keyboard.JUMP_ONCE = true;
-    if (e.code === "KeyD") keyboard.THROW_ONCE = true, sounds.THROW.play();
+    if (e.code === "KeyD") keyboard.THROW_ONCE = true;
     if (e.code === "ArrowLeft") keyboard.LEFT = true;
     if (e.code === "ArrowRight") keyboard.RIGHT = true;
   }

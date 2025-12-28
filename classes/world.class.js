@@ -28,6 +28,7 @@ class World {
   run() {
     setInterval(() => {
       this.checkCollision();
+      this.checkCoinCollisions();
       this.checkThrowObject();
       this.bottleCollision();
     }, 1000 / 30);
@@ -46,59 +47,83 @@ class World {
     }
   }
 
-  checkCollision() {
-    this.level.enemies.forEach((enemy) => {
-      if (this.character.isColliding(enemy)) {
-        if (
-          this.character.isAboveGround() &&
-          this.character.speedY < 0 &&
-          !(enemy instanceof Boss) &&
-          !enemy.isDead
-        ) {
-          enemy.isDead = true; 
-          this.character.speedY = 12; 
-          sounds.DEAD.play();
-          sounds.JUMP.play();
-          setTimeout(() => {
-            let currentIndex = this.level.enemies.indexOf(enemy);
-            if (currentIndex > -1) {
-              this.level.enemies.splice(currentIndex, 1);
-            }
-          }, 500);
+checkCollision() {
+  this.level.enemies.forEach((enemy) => {
+    if (this.character.isColliding(enemy)) {
+      
+      // BOSS-Logik
+      if (enemy instanceof Boss) {
+        if (!this.character.isHurt() && !this.character.isDead()) {
+          this.character.hit();
+          this.statusBar.setPercentage(this.character.energy);
         }
-        else if (!enemy.isDead) {
-          if (!this.character.isHurt() && !this.character.isDead()) {
-            this.character.hit();
-            sounds.HURT.play();
-            this.statusBar.setPercentage(this.character.energy);
-          }
-        }
+      } 
+      // HÜHNER-Logik
+      else {
+        this.handleChickenCollision(enemy);
       }
-    });
-  }
+    }
+  });
+}
 
-  bottleCollision() {
+// Hilfsfunktion zur besseren Übersicht
+handleChickenCollision(enemy) {
+  if (this.character.isAboveGround() && this.character.speedY < 0 && !enemy.isDead) {
+    enemy.isDead = true;
+    this.character.speedY = 12;
+    sounds.DEAD.play();
+    setTimeout(() => {
+      let index = this.level.enemies.indexOf(enemy);
+      if (index > -1) this.level.enemies.splice(index, 1);
+    }, 500);
+  } else if (!enemy.isDead) {
+    if (!this.character.isHurt() && !this.character.isDead()) {
+      this.character.hit();
+      this.statusBar.setPercentage(this.character.energy);
+    }
+  }
+}
+
+bottleCollision() {
   this.throwableObjects.forEach((bottle) => {
     this.level.enemies.forEach((enemy) => {
-      if (bottle.isColliding(enemy) && !bottle.hasSplashed && !enemy.isDead) {
+      if (bottle.isColliding(enemy) && !bottle.hasSplashed) {
+        
         if (enemy instanceof Boss) {
-          bottle.splash(); 
-          enemy.hit();
+          bottle.splash(); // Flasche zerspringt
+          enemy.hit();    // Boss verliert Energie
           this.bossStatusBar.setPercentage(enemy.energy);
-        } else {
-          bottle.splash(); 
-          enemy.isDead = true; 
+        } 
+        else if (!enemy.isDead) { // Normales Huhn
+          bottle.splash();
+          enemy.isDead = true;
           sounds.DEAD.play();
           setTimeout(() => {
-            let currentIndex = this.level.enemies.indexOf(enemy);
-            if (currentIndex > -1) {
-              this.level.enemies.splice(currentIndex, 1);
-            }
+            let index = this.level.enemies.indexOf(enemy);
+            if (index > -1) this.level.enemies.splice(index, 1);
           }, 500);
         }
       }
     });
   });
+}
+
+checkCoinCollisions() {
+    this.level.coins.forEach((coin, index) => {
+        if (this.character.isColliding(coin)) {
+            // 1. Punkt im Charakter hinzufügen (optional, falls du dort eine Variable hast)
+            this.character.collectCoin(); 
+            
+            sounds.COIN.play();
+
+            // 3. Statusbar aktualisieren
+            // Wir nehmen an, 10 Münzen = 100%. Also jede Münze gibt 10%
+            this.coinsStatusBar.setPercentage(this.character.coinsCount);
+
+            // 4. Münze aus dem Level entfernen
+            this.level.coins.splice(index, 1);
+        }
+    });
 }
 
   draw() {
@@ -149,7 +174,7 @@ class World {
       this.flipImage(mo);
     }
     mo.draw(this.ctx);
-    /* mo.drawFrame(this.ctx); */ /* Frames character and chicken */
+   /*  mo.drawFrame(this.ctx); */ /* Frames character and chicken */
 
     if (mo.otherDirection) {
       this.flipImageBack(mo);

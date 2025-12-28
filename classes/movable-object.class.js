@@ -2,20 +2,25 @@ class MovableObject extends DrawableObject {
   otherDirection = false;
   speedY = 0;
   acceleration = 0.5;
-  offset = {
-    top: 10,
-    bottom: 20,
-    left: 20,
-    right: 20,
-  };
   lastHit = 0;
   lastAnimationTime = 0;
+  offset = {
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  };
 
   applyGravity() {
     setInterval(() => {
       if (this.isAboveGround() || this.speedY > 0) {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;
+      } else {
+        if (!(this instanceof ThrowableObject)) {
+          this.y = 130;
+          this.speedY = 0;
+        }
       }
     }, 10);
   }
@@ -27,7 +32,7 @@ class MovableObject extends DrawableObject {
       return this.y < 130;
     }
   }
- 
+
   isColliding(mo) {
     return (
       this.x + this.width - this.offset.right > mo.x + mo.offset.left &&
@@ -38,6 +43,7 @@ class MovableObject extends DrawableObject {
   }
 
   hit() {
+    sounds.HURT.play();
     this.energy -= 10;
     if (this.energy < 0) {
       this.energy = 0;
@@ -60,13 +66,13 @@ class MovableObject extends DrawableObject {
   }
   moveRight() {
     this.x += this.speed;
-   }
+  }
 
   playAnimation(images, fps) {
     let now = Date.now();
     let frameDuration = 1000 / fps;
     if (now - this.lastAnimationTime < frameDuration) {
-      return; 
+      return;
     }
     this.lastAnimationTime = now;
     let i = this.currentImage % images.length;
@@ -76,8 +82,10 @@ class MovableObject extends DrawableObject {
   }
 
   jump() {
-    this.speedY = 15;
-    sounds.JUMP.play();
-    sounds.WALK.stop();
+    if (!this.isAboveGround()) {
+      this.speedY = 15;
+      sounds.JUMP.play();
+      sounds.WALK.stop();
+    }
   }
 }

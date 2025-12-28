@@ -6,5 +6,7 @@ class Sounds {
         this.SPLASH = new Sound('assets/sounds/splash_bottle.mp3', 1, false);
         this.HURT = new Sound('assets/sounds/hurt.mp3', 1, false);
         this.DEAD = new Sound('assets/sounds/enemy-hurt.mp3', 1, false);
+        this.COIN = new Sound('assets/sounds/coin.mp3', 0.1, false);
+        this.MUSIC = new Sound('assets/sounds/Classic Mariachi - Jimena Contreras.mp3', 0.5, true);
     }
 }

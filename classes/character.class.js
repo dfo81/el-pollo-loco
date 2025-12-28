@@ -4,6 +4,12 @@ class Character extends MovableObject {
   height = 300;
   width = 152.5;
   speed = 5;
+   offset = {
+    top: 150,
+    bottom: 20,
+    left: 50,
+    right: 50,
+  };
   IMAGES_WALKING = [
     "/assets/img/2_character_pepe/2_walk/W-21.png",
     "/assets/img/2_character_pepe/2_walk/W-22.png",
@@ -52,6 +58,7 @@ class Character extends MovableObject {
   world;
   energy = 100;
   jumpIntervalRunning = false;
+  coinsCount = 0;
 
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
@@ -63,6 +70,13 @@ class Character extends MovableObject {
     this.applyGravity();
     this.animate();
     this.moving();
+  }
+
+  collectCoin() {
+    this.coinsCount += 5;
+    if (this.coinsCount > 100) {
+      this.coinsCount = 100;
+    }
   }
 
   animate() {
@@ -109,19 +123,20 @@ class Character extends MovableObject {
       this.world.camera_x = -this.x + 50;
     }, 1000 / 30);
   }
-  
-  manageWalkingSound() {
-  if (!sounds || !sounds.WALK) return;
 
-  let isMovingOnGround = (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) 
-                         && !this.isAboveGround() 
-                         && !this.isDead();
-  if (isMovingOnGround) {
-    if (sounds.WALK.audio.paused) {
-      sounds.WALK.play();
+  manageWalkingSound() {
+    if (!sounds || !sounds.WALK) return;
+
+    let isMovingOnGround =
+      (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) &&
+      !this.isAboveGround() &&
+      !this.isDead();
+    if (isMovingOnGround) {
+      if (sounds.WALK.audio.paused) {
+        sounds.WALK.play();
+      }
+    } else {
+      sounds.WALK.stop();
     }
-  } else {
-    sounds.WALK.stop();
   }
-}
 }

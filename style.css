@@ -10,12 +10,8 @@ body {
     overflow: hidden;
 }
 
-h1 {
-    font-family: zabars, Arial, Helvetica, sans-serif;
-    font-size: 78px;
-    letter-spacing: 3px;
-    color: rgb(255, 114, 7);
-    text-shadow: 2px 2px 5px black;
+.game {
+    position: relative;
 }
 
 canvas {
@@ -23,6 +19,25 @@ canvas {
     display: block;
     border-radius: 8px;
     box-shadow: 10px 10px 20px 5px rgba(0, 0, 0, 0.6);
+}
+
+#startScreen img {
+    position: absolute;
+    width: 720px;
+    height: 480px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1; 
+}
+
+.startButton {
+    width: 100px;
+    height: 100px;
+}
+
+.d-none {
+    display: none !important;
 }
 
 @font-face {
