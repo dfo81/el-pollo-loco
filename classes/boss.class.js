@@ -1,8 +1,8 @@
 class Boss extends MovableObject {
-  x = 600;
-  y = 185;
-  width = 304;
-  height = 261;
+  x = 2600;
+  y = 50;
+  width = 489;
+  height = 418;
   speed = 0.35;
   IMAGES_BOSS_ALERT = [
     "assets/img/4_enemie_boss_chicken/2_alert/G5.png",

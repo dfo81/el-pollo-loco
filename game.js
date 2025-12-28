@@ -11,10 +11,10 @@ function init() {
 
 window.addEventListener("keydown", (e) => {
   if (!isKeyDown[e.code]) {
-    if (e.code === "Space") keyboard.JUMP_ONCE = true,  sounds.JUMP.play();
+    if (e.code === "Space") keyboard.JUMP_ONCE = true;
     if (e.code === "KeyD") keyboard.THROW_ONCE = true, sounds.THROW.play();
-    if (e.code === "ArrowLeft") keyboard.LEFT = true, sounds.WALK.play();
-    if (e.code === "ArrowRight") keyboard.RIGHT = true, sounds.WALK.play();
+    if (e.code === "ArrowLeft") keyboard.LEFT = true;
+    if (e.code === "ArrowRight") keyboard.RIGHT = true;
   }
   isKeyDown[e.code] = true;
 });
@@ -23,7 +23,4 @@ window.addEventListener("keyup", (e) => {
   isKeyDown[e.code] = false;
   if (e.code === "ArrowLeft") (keyboard.LEFT = false);
   if (e.code === "ArrowRight") (keyboard.RIGHT = false);
-  if (!keyboard.LEFT && !keyboard.RIGHT) {
-    sounds.WALK.stop();
-  }
 });

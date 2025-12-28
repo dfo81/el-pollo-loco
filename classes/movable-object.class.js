@@ -1,9 +1,9 @@
-class MovableObject extends DrawablaObject {
+class MovableObject extends DrawableObject {
   otherDirection = false;
   speedY = 0;
-  acceleration = 0.75;
+  acceleration = 0.5;
   offset = {
-    top: 0,
+    top: 10,
     bottom: 20,
     left: 20,
     right: 20,
@@ -17,7 +17,7 @@ class MovableObject extends DrawablaObject {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;
       }
-    }, 1000 / 60);
+    }, 10);
   }
 
   isAboveGround() {
@@ -77,5 +77,7 @@ class MovableObject extends DrawablaObject {
 
   jump() {
     this.speedY = 15;
+    sounds.JUMP.play();
+    sounds.WALK.stop();
   }
 }

@@ -35,7 +35,7 @@ class ThrowableObject extends MovableObject {
       } else {
         this.x += 15; // nach rechts werfen
       }
-    }, 20);
+    }, 15);
     this.rotationInterval = setInterval(() => {
       this.playAnimation(this.IMAGES_BOTTLE);
     }, 75);
