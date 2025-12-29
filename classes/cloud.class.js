@@ -21,9 +21,9 @@ class Cloud extends MovableObject {
 function createCloudLevel(count) {
     let clouds = [];
     for (let i = 0; i < count; i++) {
-        let x = Math.random() * 3000; // Verteilt über 3000 Pixel
-        let speed = 0.2 + Math.random() * 0.6; // Zufälliger Parallax zwischen 0.2 und 0.8
-        let imgIndex = (i % 2) + 1; // Wechselt zwischen 1.png und 2.png
+        let x = Math.random() * 2500; 
+        let speed = 0.2 + Math.random() * 0.6; 
+        let imgIndex = (i % 2) + 1;
         
         clouds.push(
             new Cloud(`assets/img/5_background/layers/4_clouds/${imgIndex}.png`, x, speed)

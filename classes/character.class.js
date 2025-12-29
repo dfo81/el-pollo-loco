@@ -59,6 +59,7 @@ class Character extends MovableObject {
   energy = 100;
   jumpIntervalRunning = false;
   coinsCount = 0;
+  bottleCount = 0;
 
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
@@ -68,6 +69,9 @@ class Character extends MovableObject {
     this.loadImages(this.IMAGES_DEAD);
     this.loadImages(this.IMAGES_HURT);
     this.applyGravity();
+  }
+
+  start() {
     this.animate();
     this.moving();
   }
@@ -77,6 +81,18 @@ class Character extends MovableObject {
     if (this.coinsCount > 100) {
       this.coinsCount = 100;
     }
+  }
+
+  collectBottle() {
+    if (this.bottleCount < 100) { 
+      this.bottleCount += 10; 
+      if (this.bottleCount > 100) this.bottleCount = 100;
+    }
+  }
+
+  throwBottle() {
+    this.bottleCount -= 10;
+    if (this.bottleCount < 0) this.bottleCount = 0;
   }
 
   animate() {
@@ -99,10 +115,7 @@ class Character extends MovableObject {
   moving() {
     setInterval(() => {
       this.manageWalkingSound();
-      if (
-        this.world.keyboard.RIGHT &&
-        this.x < this.world.level.level_end_x &&
-        !this.isDead()
+      if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x && !this.isDead()
       ) {
         this.moveRight();
         this.otherDirection = false;
@@ -111,11 +124,7 @@ class Character extends MovableObject {
         this.moveLeft();
         this.otherDirection = true;
       }
-
-      if (
-        this.world.keyboard.JUMP_ONCE &&
-        !this.isAboveGround() &&
-        !this.isDead()
+      if (this.world.keyboard.JUMP_ONCE && !this.isAboveGround() && !this.isDead()
       ) {
         this.jump();
         this.world.keyboard.JUMP_ONCE = false;
@@ -126,17 +135,18 @@ class Character extends MovableObject {
 
   manageWalkingSound() {
     if (!sounds || !sounds.WALK) return;
-
-    let isMovingOnGround =
-      (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) &&
-      !this.isAboveGround() &&
-      !this.isDead();
+    let isMovingOnGround = (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) && !this.isAboveGround() && !this.isDead();
     if (isMovingOnGround) {
-      if (sounds.WALK.audio.paused) {
-        sounds.WALK.play();
-      }
+        if (sounds.WALK.paused) {
+            let playPromise = sounds.WALK.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => { });
+            }
+        }
     } else {
-      sounds.WALK.stop();
+        if (!sounds.WALK.paused) {
+            sounds.WALK.pause();
+        }
     }
   }
 }

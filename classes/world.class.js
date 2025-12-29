@@ -1,12 +1,13 @@
 class World {
   character = new Character();
-  level = level1;
+  level;
   canvas;
   ctx;
   keyboard;
   camera_x = 0;
   statusBar = new StatusBar();
   bossStatusBar = new BossStatusBar();
+  bossFirstContact = false;
   bottleStatusBar = new BottleStatusBar();
   coinsStatusBar = new CoinsStatusBar();
   throwableObjects = [];
@@ -16,9 +17,14 @@ class World {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
+    this.level = level1;
     this.draw();
     this.setWorld();
     this.run();
+    this.character.start();
+    this.level.enemies.forEach((enemy) => {
+      if (enemy.animate) enemy.animate();
+    });
   }
 
   setWorld() {
@@ -30,12 +36,21 @@ class World {
       this.checkCollision();
       this.checkCoinCollisions();
       this.checkThrowObject();
+      this.checkPickBottle();
       this.bottleCollision();
+      this.checkMeetBoss();
     }, 1000 / 30);
   }
 
+  startGame() {
+    this.character.start();
+    this.level.enemies.forEach((enemy) => {
+      if (enemy.animate) enemy.animate();
+    });
+  }
+
   checkThrowObject() {
-    if (this.keyboard.THROW_ONCE && !this.character.isDead()) {
+    if (this.keyboard.THROW_ONCE && this.character.bottleCount >= 10 && !this.character.isDead()) {
       let offsetX = this.character.otherDirection ? -10 : 75;
       let bottle = new ThrowableObject(
         this.character.x + offsetX,
@@ -43,88 +58,100 @@ class World {
         this.character.otherDirection
       );
       this.throwableObjects.push(bottle);
+      this.character.throwBottle();
+      this.bottleStatusBar.setPercentage(this.character.bottleCount);
       this.keyboard.THROW_ONCE = false;
     }
   }
 
-checkCollision() {
-  this.level.enemies.forEach((enemy) => {
-    if (this.character.isColliding(enemy)) {
-      
-      // BOSS-Logik
-      if (enemy instanceof Boss) {
-        if (!this.character.isHurt() && !this.character.isDead()) {
-          this.character.hit();
-          this.statusBar.setPercentage(this.character.energy);
-        }
-      } 
-      // HÜHNER-Logik
-      else {
-        this.handleChickenCollision(enemy);
-      }
-    }
-  });
-}
+  checkCollision() {
+    let jumpedOnEnemy = false;
 
-// Hilfsfunktion zur besseren Übersicht
-handleChickenCollision(enemy) {
-  if (this.character.isAboveGround() && this.character.speedY < 0 && !enemy.isDead) {
-    enemy.isDead = true;
-    this.character.speedY = 12;
-    sounds.DEAD.play();
-    setTimeout(() => {
-      let index = this.level.enemies.indexOf(enemy);
-      if (index > -1) this.level.enemies.splice(index, 1);
-    }, 500);
-  } else if (!enemy.isDead) {
-    if (!this.character.isHurt() && !this.character.isDead()) {
-      this.character.hit();
-      this.statusBar.setPercentage(this.character.energy);
-    }
-  }
-}
-
-bottleCollision() {
-  this.throwableObjects.forEach((bottle) => {
     this.level.enemies.forEach((enemy) => {
-      if (bottle.isColliding(enemy) && !bottle.hasSplashed) {
-        
+      if (this.character.isColliding(enemy)) {
         if (enemy instanceof Boss) {
-          bottle.splash(); // Flasche zerspringt
-          enemy.hit();    // Boss verliert Energie
-          this.bossStatusBar.setPercentage(enemy.energy);
-        } 
-        else if (!enemy.isDead) { // Normales Huhn
-          bottle.splash();
-          enemy.isDead = true;
-          sounds.DEAD.play();
-          setTimeout(() => {
-            let index = this.level.enemies.indexOf(enemy);
-            if (index > -1) this.level.enemies.splice(index, 1);
-          }, 500);
+          if (!this.character.isHurt() && !this.character.isDead()) {
+            this.character.hit();
+            this.statusBar.setPercentage(this.character.energy);
+          }
+        } else {
+          let killed = this.handleChickenCollision(enemy, jumpedOnEnemy);
+          if (killed) {
+            jumpedOnEnemy = true;
+          }
         }
       }
     });
+  }
+
+  handleChickenCollision(enemy, alreadyKilledInThisFrame) {
+    if (
+      this.character.isAboveGround() &&
+      this.character.speedY < 0 &&
+      !enemy.isDead
+    ) {
+      enemy.isDead = true;
+      this.character.speedY = 12;
+      sounds.DEAD.play();
+      setTimeout(() => {
+        let index = this.level.enemies.indexOf(enemy);
+        if (index > -1) this.level.enemies.splice(index, 1);
+      }, 500);
+      return true;
+    } else if (!enemy.isDead && !alreadyKilledInThisFrame) {
+      if (!this.character.isHurt() && !this.character.isDead()) {
+        this.character.hit();
+        this.statusBar.setPercentage(this.character.energy);
+      }
+    }
+    return false;
+  }
+
+  bottleCollision() {
+    this.throwableObjects.forEach((bottle) => {
+      this.level.enemies.forEach((enemy) => {
+        if (bottle.isColliding(enemy) && !bottle.hasSplashed) {
+          if (enemy instanceof Boss) {
+            bottle.splash();
+            enemy.hit();
+            this.bossStatusBar.setPercentage(enemy.energy);
+          } else if (!enemy.isDead) {
+            bottle.splash();
+            enemy.isDead = true;
+            sounds.DEAD.play();
+            setTimeout(() => {
+              let index = this.level.enemies.indexOf(enemy);
+              if (index > -1) this.level.enemies.splice(index, 1);
+            }, 500);
+          }
+        }
+      });
+    });
+  }
+
+  checkPickBottle() {
+  this.level.bottles.forEach((bottle, index) => {
+    if (this.character.isColliding(bottle)) {
+      if (this.character.bottleCount < 100) {
+        this.character.collectBottle(); 
+        this.level.bottles.splice(index, 1); 
+        this.bottleStatusBar.setPercentage(this.character.bottleCount); 
+        sounds.BOTTLE.play();
+      }
+    }
   });
 }
 
-checkCoinCollisions() {
+  checkCoinCollisions() {
     this.level.coins.forEach((coin, index) => {
-        if (this.character.isColliding(coin)) {
-            // 1. Punkt im Charakter hinzufügen (optional, falls du dort eine Variable hast)
-            this.character.collectCoin(); 
-            
-            sounds.COIN.play();
-
-            // 3. Statusbar aktualisieren
-            // Wir nehmen an, 10 Münzen = 100%. Also jede Münze gibt 10%
-            this.coinsStatusBar.setPercentage(this.character.coinsCount);
-
-            // 4. Münze aus dem Level entfernen
-            this.level.coins.splice(index, 1);
-        }
+      if (this.character.isColliding(coin)) {
+        this.character.collectCoin();
+        sounds.COIN.play();
+        this.coinsStatusBar.setPercentage(this.character.coinsCount);
+        this.level.coins.splice(index, 1);
+      }
     });
-}
+  }
 
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -143,13 +170,16 @@ checkCoinCollisions() {
     });
 
     this.ctx.translate(this.camera_x, 0);
-    this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.level.coins);
+    this.addObjectsToMap(this.level.bottles);
+    this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.throwableObjects);
     this.ctx.translate(-this.camera_x, 0);
 
     this.addToMap(this.statusBar);
-    this.addToMap(this.bossStatusBar);
+    if (this.bossFirstContact) {
+      this.addToMap(this.bossStatusBar);
+    }
     this.addToMap(this.bottleStatusBar);
     this.addToMap(this.coinsStatusBar);
 
@@ -157,9 +187,8 @@ checkCoinCollisions() {
     this.addToMap(this.character);
     this.ctx.translate(-this.camera_x, 0);
 
-    self = this; // draw wird immer wieder aufgerufen
-    requestAnimationFrame(function () {
-      self.draw(); // this funktioniert hier nicht daher self
+    requestAnimationFrame(() => {
+      this.draw();
     });
   }
 
@@ -174,7 +203,7 @@ checkCoinCollisions() {
       this.flipImage(mo);
     }
     mo.draw(this.ctx);
-   /*  mo.drawFrame(this.ctx); */ /* Frames character and chicken */
+    /*  mo.drawFrame(this.ctx); */ /* Frames character and chicken */
 
     if (mo.otherDirection) {
       this.flipImageBack(mo);
@@ -191,5 +220,14 @@ checkCoinCollisions() {
   flipImageBack(mo) {
     mo.x = mo.x * -1;
     this.ctx.restore();
+  }
+
+  checkMeetBoss() {
+    if (this.character.x > 2000 && !this.bossFirstContact) {
+      this.bossFirstContact = true;
+      sounds.MUSIC.stop();
+      sounds.BOSS_MUSIC.play();
+      sounds.SCARED_BOSS.play();
+    }
   }
 }

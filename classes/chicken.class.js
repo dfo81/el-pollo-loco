@@ -1,9 +1,9 @@
 class Chicken extends MovableObject {
-  y = 365;
-  width = 62;
-  height = 60.75;
+  y = 350;
+  width = 82.66;
+  height = 81;
   offset = {
-    top: 10,
+    top: 0,
     bottom: 10,
     left: 0,
     right: 0,
@@ -21,25 +21,25 @@ class Chicken extends MovableObject {
     super().loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
     this.isDead = false;
-    this.x = x || 200 + Math.random() * 500;
-    this.speed = 0.25 + Math.random() * 0.5;
+    this.x = x;
+    this.speed = 0.25 + Math.random() * 0.2;
     this.animate();
   }
 
   animate() {
-    // Intervall 1: Bewegung
     this.moveInterval = setInterval(() => {
       if (!this.isDead) {
         this.moveLeft();
+        if (this.x < -200) {
+          this.x = 3000 + Math.random() * 1000; 
+        }
       }
     }, 1000 / 60);
-
-    // Intervall 2: Animation
     this.animationInterval = setInterval(() => {
       if (this.isDead) {
-        this.loadImage(this.IMAGE_DEAD); // Zeige totes Bild
+        this.loadImage(this.IMAGE_DEAD);
       } else {
-        this.playAnimation(this.IMAGES_WALKING); // Laufe normal
+        this.playAnimation(this.IMAGES_WALKING);
       }
     }, 120);
   }
@@ -48,7 +48,7 @@ class Chicken extends MovableObject {
 function createEnemyLevel(count) {
     let enemies = [new Boss()]; 
     for (let i = 0; i < count; i++) {
-        let x = 600 + Math.random() * 2500; 
+        let x = 800 + (i * 400) + (Math.random() * 200); 
         enemies.push(new Chicken(x));
     }
     return enemies;

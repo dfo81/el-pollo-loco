@@ -19,15 +19,15 @@ class Coins extends DrawableObject {
 function createCoinsLevel(totalPatterns) {
     let allCoins = [];
     for (let i = 0; i < totalPatterns; i++) {
-        let x = 200 + (i * 400); // Alle 500 Pixel ein neues Muster
+        let x = 200 + (i * 400); 
         let type = Math.random();
 
         if (type < 0.33) {
             allCoins.push(...createCoinRow(x, 300, 4));
         } else if (type < 0.66) {
-            allCoins.push(...createCoinBlock(x, 150, 2, 2));
+            allCoins.push(...createCoinBlock(x, 150, 2, 1));
         } else {
-            allCoins.push(...createCoinDiagonal(x, 350, 3, -1));
+            allCoins.push(...createCoinDiagonal(x, 350, 4, -1));
         }
     }
     return allCoins;
