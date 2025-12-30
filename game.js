@@ -8,7 +8,8 @@ function startGame() {
   document.getElementById('startScreen').classList.add('d-none')
   sounds.MUSIC.play();
   canvas = document.getElementById("canvas");
-  world = new World(canvas, keyboard, sounds); 
+  world = new World(canvas, keyboard, sounds);
+  world.startGame(); 
 }
 
 window.addEventListener("keydown", (e) => {

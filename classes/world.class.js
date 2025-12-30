@@ -21,10 +21,6 @@ class World {
     this.draw();
     this.setWorld();
     this.run();
-    this.character.start();
-    this.level.enemies.forEach((enemy) => {
-      if (enemy.animate) enemy.animate();
-    });
   }
 
   setWorld() {
@@ -45,21 +41,28 @@ class World {
   startGame() {
     this.character.start();
     this.level.enemies.forEach((enemy) => {
-      if (enemy.animate) enemy.animate();
+      if (enemy instanceof Chicken) {
+        enemy.startChicken();
+      }
+      if (enemy instanceof Boss) {
+        enemy.animate();
+      }
     });
   }
 
   checkThrowObject() {
-    if (this.keyboard.THROW_ONCE && this.character.bottleCount >= 10 && !this.character.isDead()) {
-      let offsetX = this.character.otherDirection ? -10 : 75;
-      let bottle = new ThrowableObject(
-        this.character.x + offsetX,
-        this.character.y + 120,
-        this.character.otherDirection
-      );
-      this.throwableObjects.push(bottle);
-      this.character.throwBottle();
-      this.bottleStatusBar.setPercentage(this.character.bottleCount);
+    if (this.keyboard.THROW_ONCE) {
+      if (this.character.bottleCount >= 10 && !this.character.isDead()) {
+        let offsetX = this.character.otherDirection ? -10 : 75;
+        let bottle = new ThrowableObject(
+          this.character.x + offsetX,
+          this.character.y + 120,
+          this.character.otherDirection
+        );
+        this.throwableObjects.push(bottle);
+        this.character.throwBottle();
+        this.bottleStatusBar.setPercentage(this.character.bottleCount);
+      }
       this.keyboard.THROW_ONCE = false;
     }
   }
@@ -85,27 +88,26 @@ class World {
   }
 
   handleChickenCollision(enemy, alreadyKilledInThisFrame) {
-    if (
-      this.character.isAboveGround() &&
-      this.character.speedY < 0 &&
-      !enemy.isDead
-    ) {
-      enemy.isDead = true;
-      this.character.speedY = 12;
-      sounds.DEAD.play();
-      setTimeout(() => {
-        let index = this.level.enemies.indexOf(enemy);
-        if (index > -1) this.level.enemies.splice(index, 1);
-      }, 500);
-      return true;
-    } else if (!enemy.isDead && !alreadyKilledInThisFrame) {
-      if (!this.character.isHurt() && !this.character.isDead()) {
-        this.character.hit();
-        this.statusBar.setPercentage(this.character.energy);
-      }
-    }
-    return false;
+  if (this.character.isAboveGround() && this.character.speedY <= 0 && !enemy.isDead) {
+    enemy.isDead = true;
+    this.character.speedY = 12; 
+    sounds.DEAD.play();
+    
+    setTimeout(() => {
+      let index = this.level.enemies.indexOf(enemy);
+      if (index > -1) this.level.enemies.splice(index, 1);
+    }, 500);
+    
+    return true;
+  } 
+  else if (!enemy.isDead && !alreadyKilledInThisFrame) {
+    if (!this.character.isHurt() && !this.character.isDead()) {
+      this.character.hit();
+      this.statusBar.setPercentage(this.character.energy);
+    } 
   }
+  return false;
+}
 
   bottleCollision() {
     this.throwableObjects.forEach((bottle) => {
@@ -130,17 +132,17 @@ class World {
   }
 
   checkPickBottle() {
-  this.level.bottles.forEach((bottle, index) => {
-    if (this.character.isColliding(bottle)) {
-      if (this.character.bottleCount < 100) {
-        this.character.collectBottle(); 
-        this.level.bottles.splice(index, 1); 
-        this.bottleStatusBar.setPercentage(this.character.bottleCount); 
-        sounds.BOTTLE.play();
+    this.level.bottles.forEach((bottle, index) => {
+      if (this.character.isColliding(bottle)) {
+        if (this.character.bottleCount < 100) {
+          this.character.collectBottle();
+          this.level.bottles.splice(index, 1);
+          this.bottleStatusBar.setPercentage(this.character.bottleCount);
+          sounds.BOTTLE.play();
+        }
       }
-    }
-  });
-}
+    });
+  }
 
   checkCoinCollisions() {
     this.level.coins.forEach((coin, index) => {
@@ -223,11 +225,19 @@ class World {
   }
 
   checkMeetBoss() {
-    if (this.character.x > 2000 && !this.bossFirstContact) {
-      this.bossFirstContact = true;
-      sounds.MUSIC.stop();
-      sounds.BOSS_MUSIC.play();
-      sounds.SCARED_BOSS.play();
+    if (this.character.x > 2000) {
+        if (sounds.SCARED_BOSS.paused) {
+            sounds.SCARED_BOSS.play();
+        }
+        if (!this.bossFirstContact) {
+            this.bossFirstContact = true;
+            sounds.MUSIC.stop();
+            sounds.BOSS_MUSIC.play();
+        }
+    } else {
+        if (sounds.SCARED_BOSS.play()) {
+            sounds.SCARED_BOSS.stop(); 
+        }
     }
-  }
+}
 }

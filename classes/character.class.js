@@ -4,7 +4,7 @@ class Character extends MovableObject {
   height = 300;
   width = 152.5;
   speed = 5;
-   offset = {
+  offset = {
     top: 150,
     bottom: 20,
     left: 50,
@@ -30,6 +30,18 @@ class Character extends MovableObject {
     "assets/img/2_character_pepe/1_idle/idle/I-9.png",
     "assets/img/2_character_pepe/1_idle/idle/I-10.png",
   ];
+  IMAGES_LONG_IDLE = [
+    "assets/img/2_character_pepe/1_idle/long_idle/I-11.png",
+    "assets/img/2_character_pepe/1_idle/long_idle/I-12.png",
+    "assets/img/2_character_pepe/1_idle/long_idle/I-13.png",
+    "assets/img/2_character_pepe/1_idle/long_idle/I-14.png",
+    "assets/img/2_character_pepe/1_idle/long_idle/I-15.png",
+    "assets/img/2_character_pepe/1_idle/long_idle/I-16.png",
+    "assets/img/2_character_pepe/1_idle/long_idle/I-17.png",
+    "assets/img/2_character_pepe/1_idle/long_idle/I-18.png",
+    "assets/img/2_character_pepe/1_idle/long_idle/I-19.png",
+    "assets/img/2_character_pepe/1_idle/long_idle/I-20.png"
+  ]
   IMAGES_JUMPING = [
     "assets/img/2_character_pepe/3_jump/J-31.png",
     "assets/img/2_character_pepe/3_jump/J-32.png",
@@ -64,10 +76,12 @@ class Character extends MovableObject {
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_IDLE);
+    this.loadImages(this.IMAGES_LONG_IDLE);
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
     this.loadImages(this.IMAGES_HURT);
+    this.lastKeyPress = new Date().getTime();
     this.applyGravity();
   }
 
@@ -84,8 +98,8 @@ class Character extends MovableObject {
   }
 
   collectBottle() {
-    if (this.bottleCount < 100) { 
-      this.bottleCount += 10; 
+    if (this.bottleCount < 100) {
+      this.bottleCount += 10;
       if (this.bottleCount > 100) this.bottleCount = 100;
     }
   }
@@ -107,15 +121,49 @@ class Character extends MovableObject {
       } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
         this.playAnimation(this.IMAGES_WALKING, 15);
       } else {
-        this.playAnimation(this.IMAGES_IDLE, 5);
+        let timer = new Date().getTime() - this.lastKeyPress;
+        if (timer > 10000) {
+          this.playAnimation(this.IMAGES_LONG_IDLE, 5);
+        } else {
+          this.playAnimation(this.IMAGES_IDLE, 5);
+        }
       }
     }, 1000 / 30);
   }
 
+hit() {
+  super.hit();
+  this.resetIdleTimer();
+  if (!this.isDead()) {
+    this.speedY = 10;
+    let knockbackSpeed = this.otherDirection ? 15 : -15; 
+    let count = 0;
+    let moveInterval = setInterval(() => {
+      this.x += knockbackSpeed;
+      count++;
+      if (count > 5 || this.x < 0) { 
+        clearInterval(moveInterval);
+      }
+    }, 1000 / 60);
+  }
+}
+
   moving() {
     setInterval(() => {
       this.manageWalkingSound();
-      if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x && !this.isDead()
+      if (this.world.keyboard.RIGHT || 
+        this.world.keyboard.LEFT || 
+        this.world.keyboard.SPACE || 
+        this.world.keyboard.JUMP_ONCE || 
+        this.world.keyboard.KeyD || 
+        this.world.keyboard.THROW_ONCE) {
+      
+      this.resetIdleTimer();
+    }
+      if (
+        this.world.keyboard.RIGHT &&
+        this.x < this.world.level.level_end_x &&
+        !this.isDead()
       ) {
         this.moveRight();
         this.otherDirection = false;
@@ -124,9 +172,10 @@ class Character extends MovableObject {
         this.moveLeft();
         this.otherDirection = true;
       }
-      if (this.world.keyboard.JUMP_ONCE && !this.isAboveGround() && !this.isDead()
-      ) {
-        this.jump();
+      if (this.world.keyboard.JUMP_ONCE) {
+        if (!this.isAboveGround() && !this.isDead()) {
+          this.jump();
+        }
         this.world.keyboard.JUMP_ONCE = false;
       }
       this.world.camera_x = -this.x + 50;
@@ -135,18 +184,25 @@ class Character extends MovableObject {
 
   manageWalkingSound() {
     if (!sounds || !sounds.WALK) return;
-    let isMovingOnGround = (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) && !this.isAboveGround() && !this.isDead();
+    let isMovingOnGround =
+      (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) &&
+      !this.isAboveGround() &&
+      !this.isDead();
     if (isMovingOnGround) {
-        if (sounds.WALK.paused) {
-            let playPromise = sounds.WALK.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(() => { });
-            }
+      if (sounds.WALK.paused) {
+        let playPromise = sounds.WALK.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {});
         }
+      }
     } else {
-        if (!sounds.WALK.paused) {
-            sounds.WALK.pause();
-        }
+      if (!sounds.WALK.paused) {
+        sounds.WALK.pause();
+      }
     }
   }
+  resetIdleTimer() {
+  this.lastKeyPress = new Date().getTime();
 }
+}
+

@@ -3,8 +3,8 @@ class Chicken extends MovableObject {
   width = 82.66;
   height = 81;
   offset = {
-    top: 0,
-    bottom: 10,
+    top: 30,
+    bottom: 0,
     left: 0,
     right: 0,
   };
@@ -23,8 +23,12 @@ class Chicken extends MovableObject {
     this.isDead = false;
     this.x = x;
     this.speed = 0.25 + Math.random() * 0.2;
+  }
+
+  startChicken() {
     this.animate();
   }
+
 
   animate() {
     this.moveInterval = setInterval(() => {
