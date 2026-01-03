@@ -1,4 +1,4 @@
-class Coins extends DrawableObject {
+class Coins extends MovableObject {
     height = 100;
     width = 100;
     offset = {
@@ -8,11 +8,24 @@ class Coins extends DrawableObject {
         right: 30
     };
 
+    IMAGES_COINS = [
+        'assets/img/8_coin/coin_1.png',
+        'assets/img/8_coin/coin_2.png'
+    ];
+
+
     constructor(x ,y){
-        super();
-        this.loadImage('assets/img/8_coin/coin_1.png');
+        super().loadImage(this.IMAGES_COINS[0]);
+        this.loadImages(this.IMAGES_COINS);
+        this.animate();
         this.x = x;
         this.y = y;
+    }
+
+    animate() {
+        setInterval(() => {
+            this.playAnimation(this.IMAGES_COINS, );
+        }, 250);
     }
 }
 
@@ -41,7 +54,7 @@ function createCoinRow(startX, startY, count) {
     return row;
 }
 
-function createCoinDiagonal(startX, startY, count, directionY = -1) {
+function createCoinDiagonal(startX, startY, count, directionY =- 1) {
     let diag = [];
     for (let i = 0; i < count; i++) {
         diag.push(new Coins(startX + (i * 60), startY + (i * 40 * directionY)));

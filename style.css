@@ -12,47 +12,71 @@ body {
 
 .game {
     position: relative;
+    max-width: 720px;
+    width: 100%;
+    display: block; 
+    margin: 0 auto;
+}
+
+.start-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    line-height: 0;
+    font-size: 0;
+    
+}
+
+.start-screen img {
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+    border-radius: 8px;
+    object-fit: fill; 
 }
 
 canvas {
-    background-color: black;
-    display: block;
+    width: 100%;
+    height: auto;
+    display: block; 
     border-radius: 8px;
-    box-shadow: 10px 10px 20px 5px rgba(0, 0, 0, 0.6);
+    background-color: black;
 }
 
-#startScreen img {
+#startButton {
     position: absolute;
-    width: 720px;
-    height: 480px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
-.startButton {
-    width: 100px;
-    height: 100px;
+@media only screen and (max-width: 720px) {
+    body {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .game {
+        width: 100vw;
+        height: auto;
+    }
+}
+
+@media only screen and (max-height: 480px) {
+    .game {
+        height: 100vh;
+        width: auto;
+        aspect-ratio: 720 / 480;
+    }
 }
 
 .d-none {
     display: none !important;
 }
-
+          
 @font-face {
     font-family: zabars;
     src: url(./assets/font/Zabars.ttf);
-}
-
-@media only screen and (max-width: 720px) {
-    canvas {
-        width: 100%;
-    }
-}
-
-@media only screen and (max-height: 480px) {
-    canvas {
-        height: 100vh;
-    }
 }

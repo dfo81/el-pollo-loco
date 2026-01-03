@@ -2,6 +2,8 @@ class MovableObject extends DrawableObject {
   otherDirection = false;
   speedY = 0;
   acceleration = 0.5;
+  groundLevel = 130;
+  currentImage = 0;
   lastHit = 0;
   lastAnimationTime = 0;
   offset = {
@@ -18,7 +20,7 @@ class MovableObject extends DrawableObject {
         this.speedY -= this.acceleration;
       } else {
         if (!(this instanceof ThrowableObject)) {
-          this.y = 130;
+          this.y = this.groundLevel;
           this.speedY = 0;
         }
       }
@@ -29,7 +31,7 @@ class MovableObject extends DrawableObject {
     if (this instanceof ThrowableObject) {
       return true;
     } else {
-      return this.y < 130;
+      return this.y < this.groundLevel;
     }
   }
 

@@ -25,11 +25,6 @@ class Chicken extends MovableObject {
     this.speed = 0.25 + Math.random() * 0.2;
   }
 
-  startChicken() {
-    this.animate();
-  }
-
-
   animate() {
     this.moveInterval = setInterval(() => {
       if (!this.isDead) {
@@ -47,13 +42,4 @@ class Chicken extends MovableObject {
       }
     }, 120);
   }
-}
-
-function createEnemyLevel(count) {
-    let enemies = [new Boss()]; 
-    for (let i = 0; i < count; i++) {
-        let x = 800 + (i * 400) + (Math.random() * 200); 
-        enemies.push(new Chicken(x));
-    }
-    return enemies;
 }

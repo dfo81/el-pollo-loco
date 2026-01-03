@@ -41,12 +41,7 @@ class World {
   startGame() {
     this.character.start();
     this.level.enemies.forEach((enemy) => {
-      if (enemy instanceof Chicken) {
-        enemy.startChicken();
-      }
-      if (enemy instanceof Boss) {
-        enemy.animate();
-      }
+      enemy.animate();
     });
   }
 
@@ -88,26 +83,33 @@ class World {
   }
 
   handleChickenCollision(enemy, alreadyKilledInThisFrame) {
-  if (this.character.isAboveGround() && this.character.speedY <= 0 && !enemy.isDead) {
-    enemy.isDead = true;
-    this.character.speedY = 12; 
-    sounds.DEAD.play();
-    
-    setTimeout(() => {
-      let index = this.level.enemies.indexOf(enemy);
-      if (index > -1) this.level.enemies.splice(index, 1);
-    }, 500);
-    
-    return true;
-  } 
-  else if (!enemy.isDead && !alreadyKilledInThisFrame) {
-    if (!this.character.isHurt() && !this.character.isDead()) {
-      this.character.hit();
-      this.statusBar.setPercentage(this.character.energy);
-    } 
+    if (
+      this.character.isAboveGround() &&
+      this.character.speedY <= 0 &&
+      !enemy.isDead
+    ) {
+      enemy.isDead = true;
+      this.character.speedY = 12;
+      if (enemy instanceof Chicks) {
+        sounds.CHICK_DEAD.play();
+      } else {
+        sounds.DEAD.play();
+      }
+
+      setTimeout(() => {
+        let index = this.level.enemies.indexOf(enemy);
+        if (index > -1) this.level.enemies.splice(index, 1);
+      }, 500);
+
+      return true;
+    } else if (!enemy.isDead && !alreadyKilledInThisFrame) {
+      if (!this.character.isHurt() && !this.character.isDead()) {
+        this.character.hit();
+        this.statusBar.setPercentage(this.character.energy);
+      }
+    }
+    return false;
   }
-  return false;
-}
 
   bottleCollision() {
     this.throwableObjects.forEach((bottle) => {
@@ -120,7 +122,12 @@ class World {
           } else if (!enemy.isDead) {
             bottle.splash();
             enemy.isDead = true;
-            sounds.DEAD.play();
+            if (enemy instanceof Chicks) {
+              sounds.CHICK_DEAD.play();
+            } else {
+              sounds.DEAD.play();
+            }
+
             setTimeout(() => {
               let index = this.level.enemies.indexOf(enemy);
               if (index > -1) this.level.enemies.splice(index, 1);
@@ -226,18 +233,18 @@ class World {
 
   checkMeetBoss() {
     if (this.character.x > 2000) {
-        if (sounds.SCARED_BOSS.paused) {
-            sounds.SCARED_BOSS.play();
-        }
-        if (!this.bossFirstContact) {
-            this.bossFirstContact = true;
-            sounds.MUSIC.stop();
-            sounds.BOSS_MUSIC.play();
-        }
+      if (sounds.SCARED_BOSS.paused) {
+        sounds.SCARED_BOSS.play();
+      }
+      if (!this.bossFirstContact) {
+        this.bossFirstContact = true;
+        sounds.MUSIC.stop();
+        sounds.BOSS_MUSIC.play();
+      }
     } else {
-        if (sounds.SCARED_BOSS.play()) {
-            sounds.SCARED_BOSS.stop(); 
-        }
+      if (sounds.SCARED_BOSS.play()) {
+        sounds.SCARED_BOSS.stop();
+      }
     }
-}
+  }
 }

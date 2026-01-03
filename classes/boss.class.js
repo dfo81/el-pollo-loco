@@ -5,10 +5,10 @@ class Boss extends MovableObject {
   height = 418;
   speed = 0.35;
   offset = {
-    top: 200,
-    bottom: 20,
-    left: 100,
-    right: 100,
+    top: 150,
+    bottom: 100,
+    left: 120,
+    right: 120,
   };
   IMAGES_BOSS_ALERT = [
     "assets/img/4_enemie_boss_chicken/2_alert/G5.png",
