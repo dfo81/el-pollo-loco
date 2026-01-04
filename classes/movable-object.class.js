@@ -1,7 +1,7 @@
 class MovableObject extends DrawableObject {
   otherDirection = false;
   speedY = 0;
-  acceleration = 0.5;
+  acceleration = 1;
   groundLevel = 130;
   currentImage = 0;
   lastHit = 0;
@@ -14,7 +14,7 @@ class MovableObject extends DrawableObject {
   };
 
   applyGravity() {
-    setInterval(() => {
+    addGameTask(this, () => {
       if (this.isAboveGround() || this.speedY > 0) {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;
@@ -24,7 +24,7 @@ class MovableObject extends DrawableObject {
           this.speedY = 0;
         }
       }
-    }, 10);
+    }, 15);
   }
 
   isAboveGround() {
@@ -85,7 +85,7 @@ class MovableObject extends DrawableObject {
 
   jump() {
     if (!this.isAboveGround()) {
-      this.speedY = 15;
+      this.speedY = 20;
       sounds.JUMP.play();
       sounds.WALK.stop();
     }

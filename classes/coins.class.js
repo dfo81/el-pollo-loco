@@ -23,7 +23,7 @@ class Coins extends MovableObject {
     }
 
     animate() {
-        setInterval(() => {
+        addGameTask(this, () => {
             this.playAnimation(this.IMAGES_COINS, );
         }, 250);
     }

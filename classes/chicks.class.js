@@ -23,21 +23,21 @@ class Chicks extends MovableObject {
     this.y = 370;
     this.isDead = false;
     this.x = x;
-    this.speed = 0.35 + Math.random() * 0.2;
+    this.speed = 0.5 + Math.random() * 0.2;
     this.applyGravity();
   }
 
   animate() {
-    this.moveInterval = setInterval(() => {
+    addGameTask(this, () => {
       if (!this.isDead) {
         this.moveLeft();
         if (this.x < -200) {
-          this.x = 3000 + Math.random() * 1000; 
+          this.x = 3000 + Math.random() * 100; 
         }
       }
     }, 1000 / 60);
 
-    this.jumpInterval = setInterval(() => {
+    addGameTask(this, () => {
         if (!this.isDead && !this.isAboveGround()) {
             if (Math.random() > 0.7) { 
                 this.speedY = 10 + Math.random() * 2; 
@@ -45,7 +45,7 @@ class Chicks extends MovableObject {
         }
     }, 1000);
 
-    this.animationInterval = setInterval(() => {
+    addGameTask(this, () => {
       if (this.isDead) {
         this.loadImage(this.IMAGE_DEAD);
       } else {

@@ -3,7 +3,7 @@ class Chicken extends MovableObject {
   width = 82.66;
   height = 81;
   offset = {
-    top: 30,
+    top: 20,
     bottom: 0,
     left: 0,
     right: 0,
@@ -26,7 +26,7 @@ class Chicken extends MovableObject {
   }
 
   animate() {
-    this.moveInterval = setInterval(() => {
+    addGameTask(this, () => {
       if (!this.isDead) {
         this.moveLeft();
         if (this.x < -200) {
@@ -34,7 +34,7 @@ class Chicken extends MovableObject {
         }
       }
     }, 1000 / 60);
-    this.animationInterval = setInterval(() => {
+    addGameTask(this, () => {
       if (this.isDead) {
         this.loadImage(this.IMAGE_DEAD);
       } else {

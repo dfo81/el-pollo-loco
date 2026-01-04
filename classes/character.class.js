@@ -3,7 +3,7 @@ class Character extends MovableObject {
   y = 20;
   height = 300;
   width = 152.5;
-  speed = 5;
+  speed = 1.5;
   offset = {
     top: 150,
     bottom: 20,
@@ -110,7 +110,7 @@ class Character extends MovableObject {
   }
 
   animate() {
-    setInterval(() => {
+    addGameTask(this, () => {
       if (!this.world || !this.world.keyboard) return;
       if (this.isDead()) {
         this.playAnimation(this.IMAGES_DEAD, 5);
@@ -128,7 +128,7 @@ class Character extends MovableObject {
           this.playAnimation(this.IMAGES_IDLE, 5);
         }
       }
-    }, 1000 / 30);
+    }, 15);
   }
 
 hit() {
@@ -139,17 +139,19 @@ hit() {
     let knockbackSpeed = this.otherDirection ? 15 : -15; 
     let count = 0;
     let moveInterval = setInterval(() => {
-      this.x += knockbackSpeed;
+      if (this.x + knockbackSpeed > 50) {
+        this.x += knockbackSpeed;
+      }
       count++;
       if (count > 5 || this.x < 0) { 
         clearInterval(moveInterval);
       }
-    }, 1000 / 60);
+    }, 15);
   }
 }
 
   moving() {
-    setInterval(() => {
+    addGameTask(this, () => {
       this.manageWalkingSound();
       if (this.world.keyboard.RIGHT || 
         this.world.keyboard.LEFT || 
@@ -179,7 +181,7 @@ hit() {
         this.world.keyboard.JUMP_ONCE = false;
       }
       this.world.camera_x = -this.x + 50;
-    }, 1000 / 30);
+    }, 15 );
   }
 
   manageWalkingSound() {

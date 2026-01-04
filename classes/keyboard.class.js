@@ -1,4 +1,4 @@
-class Keyboard {
+class Keys {
     LEFT = false;
     RIGHT = false;
     THROW_ONCE = false;

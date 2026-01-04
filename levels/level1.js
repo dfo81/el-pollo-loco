@@ -1,9 +1,11 @@
-const level1 = new Level(
+let level1;
+
+level1 = new Level(
   createEnemyLevel(12),
   createCloudLevel(10),
   createBackgroundLevel(6),
   createCoinsLevel(6),
-  createBottleLevel(12)
+  createBottleLevel(13)
 );
  
 

@@ -25,24 +25,25 @@ class World {
 
   setWorld() {
     this.character.world = this;
+    this.character.start();
   }
 
   run() {
-    setInterval(() => {
+    addGameTask(this, ()=> {
       this.checkCollision();
       this.checkCoinCollisions();
       this.checkThrowObject();
       this.checkPickBottle();
       this.bottleCollision();
       this.checkMeetBoss();
-    }, 1000 / 30);
+    }, 15);
   }
 
   startGame() {
-    this.character.start();
-    this.level.enemies.forEach((enemy) => {
-      enemy.animate();
-    });
+      this.character.start();
+      this.level.enemies.forEach((enemy) => {
+        enemy.animate();
+      });
   }
 
   checkThrowObject() {
@@ -63,52 +64,61 @@ class World {
   }
 
   checkCollision() {
-    let jumpedOnEnemy = false;
-
     this.level.enemies.forEach((enemy) => {
       if (this.character.isColliding(enemy)) {
         if (enemy instanceof Boss) {
-          if (!this.character.isHurt() && !this.character.isDead()) {
-            this.character.hit();
-            this.statusBar.setPercentage(this.character.energy);
-          }
+          this.handleBossCollision();
         } else {
-          let killed = this.handleChickenCollision(enemy, jumpedOnEnemy);
-          if (killed) {
-            jumpedOnEnemy = true;
-          }
+          // Wir übergeben das Ergebnis von handleChickenCollision
+          this.handleChickenCollision(enemy);
         }
       }
     });
   }
 
-  handleChickenCollision(enemy, alreadyKilledInThisFrame) {
+  // Hilfsmethode für Übersichtlichkeit
+  handleBossCollision() {
+    if (!this.character.isHurt() && !this.character.isDead()) {
+      this.character.hit();
+      this.statusBar.setPercentage(this.character.energy);
+    }
+  }
+
+  handleChickenCollision(enemy) {
+    // PRIORITÄT 1: Pepe ist in der Luft (Sprung-Attacke)
+    // Wir prüfen speedY <= 0, damit er auch am Scheitelpunkt des Sprungs trifft
     if (
       this.character.isAboveGround() &&
       this.character.speedY <= 0 &&
       !enemy.isDead
     ) {
-      enemy.isDead = true;
-      this.character.speedY = 12;
-      if (enemy instanceof Chicks) {
-        sounds.CHICK_DEAD.play();
-      } else {
-        sounds.DEAD.play();
-      }
-
-      setTimeout(() => {
-        let index = this.level.enemies.indexOf(enemy);
-        if (index > -1) this.level.enemies.splice(index, 1);
-      }, 500);
-
-      return true;
-    } else if (!enemy.isDead && !alreadyKilledInThisFrame) {
+      this.executeEnemyKill(enemy);
+    }
+    // PRIORITÄT 2: Pepe ist auf dem Boden (Kollision verursacht Schaden)
+    else if (!enemy.isDead && !this.character.isAboveGround()) {
       if (!this.character.isHurt() && !this.character.isDead()) {
         this.character.hit();
         this.statusBar.setPercentage(this.character.energy);
       }
     }
-    return false;
+  }
+
+  // Ausgelagerte Logik für den Kill, um Code-Duplikate zu vermeiden
+  executeEnemyKill(enemy) {
+    enemy.isDead = true;
+    this.character.speedY = 12; // Kleiner Rückprall-Hüpfer für Pepe
+
+    if (enemy instanceof Chicks) {
+      sounds.CHICK_DEAD.play();
+    } else {
+      sounds.DEAD.play();
+    }
+    setTimeout(() => {
+      let index = this.level.enemies.indexOf(enemy);
+      if (index > -1) {
+        this.level.enemies.splice(index, 1);
+      }
+    }, 500);
   }
 
   bottleCollision() {
@@ -122,11 +132,7 @@ class World {
           } else if (!enemy.isDead) {
             bottle.splash();
             enemy.isDead = true;
-            if (enemy instanceof Chicks) {
-              sounds.CHICK_DEAD.play();
-            } else {
-              sounds.DEAD.play();
-            }
+            this.executeEnemyKill(enemy);
 
             setTimeout(() => {
               let index = this.level.enemies.indexOf(enemy);
@@ -172,7 +178,7 @@ class World {
     });
 
     this.level.clouds.forEach((cloud) => {
-      let modifier = cloud.speedModifier || 0.25;
+      let modifier = cloud.speedModifier || 0.5;
       this.ctx.translate(this.camera_x * modifier, 0);
       this.addToMap(cloud);
       this.ctx.translate(-this.camera_x * modifier, 0);

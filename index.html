@@ -4,8 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>El pollo loco</title>
-    <link rel="shortcut icon" href="./assets/img/6_salsa_bottle/salsa_bottle.png" type="image/x-icon">
+    <link
+      rel="shortcut icon"
+      href="./assets/img/6_salsa_bottle/salsa_bottle.png"
+      type="image/x-icon"
+    />
     <link rel="stylesheet" href="style.css" />
+    
     <script src="./classes/drawable-object.class.js"></script>
     <script src="./classes/movable-object.class.js"></script>
     <script src="./classes/keyboard.class.js"></script>
@@ -15,6 +20,7 @@
     <script src="./classes/character.class.js"></script>
     <script src="./classes/chicken.class.js"></script>
     <script src="./classes/chicks.class.js"></script>
+    <script src="./classes/boss.class.js"></script>
     <script src="./classes/cloud.class.js"></script>
     <script src="./classes/boss-status-bar.class.js"></script>
     <script src="./classes/bottle-status-bar.class.js"></script>
@@ -25,18 +31,25 @@
     <script src="./classes/world.class.js"></script>
     <script src="./classes/level.class.js"></script>
     <script src="./classes/throwable-object.class.js"></script>
-    <script src="./classes/boss.class.js"></script>
-    <script src="./levels/level1.js"></script>
     <script src="./game.js"></script>
+    <script src="./levels/level1.js"></script>
+    
   </head>
   <body>
+    <div id="rotateScreen" class="rotate-screen">
+      <div class="rotate-content">
+        <img src="assets/icons/rotate.png" alt="Rotate Icon" />
+        <p>Please Rotate Your Device</p>
+      </div>
+    </div>
     <div class="game">
-      <div id="startScreen" class="start-screen">
-        <img
-          src="assets/img/9_intro_outro_screens/start/startscreen_1.png"
-          alt="start screen"
-        />
-        <img id="startButton" onclick="startGame()" />
+      <div id="startScreen" class="start-screen" onclick="startGame()">
+        <img src="./assets/img/9_intro_outro_screens/start/startscreen_1.png" alt="">
+      </div>
+      <div class="menu">
+        <img src="./assets/icons/play.png" alt="">
+        <img src="./assets/icons/mute.png" alt="">
+        <img src="./assets/icons/" alt="">
       </div>
       <canvas id="canvas" width="720" height="480"></canvas>
     </div>

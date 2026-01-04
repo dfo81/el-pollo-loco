@@ -4,7 +4,7 @@ class Bottle extends MovableObject {
     y = 350 + Math.random() * 20;
      offset = {
         top: 0,
-        bottom: 0,
+        bottom: 40,
         left: 30,
         right: 30
     };
@@ -25,7 +25,7 @@ class Bottle extends MovableObject {
 
 function createBottleLevel(count) {
     let bottles = [];
-    let distance = 2500 / count; 
+    let distance = 2000 / count; 
 
     for (let i = 0; i < count; i++) {
         let sectionStart = 400 + (i * distance); 

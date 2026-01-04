@@ -7,8 +7,8 @@ class Boss extends MovableObject {
   offset = {
     top: 150,
     bottom: 100,
-    left: 120,
-    right: 120,
+    left: 80,
+    right: 80,
   };
   IMAGES_BOSS_ALERT = [
     "assets/img/4_enemie_boss_chicken/2_alert/G5.png",
@@ -29,7 +29,7 @@ class Boss extends MovableObject {
   }
 
   animate() {
-    setInterval(() => {
+    addGameTask(this, () => {
       this.playAnimation(this.IMAGES_BOSS_ALERT);
     }, 250);
   }
