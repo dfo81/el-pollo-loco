@@ -1,4 +1,10 @@
+@font-face {
+    font-family: zabars;
+    src: url(./assets/font/Zabars.ttf);
+}
+
 body {
+    font-family: 'zabars', sans-serif;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -11,12 +17,18 @@ body {
     overflow: hidden;
     margin: 0;
     padding: 0;
+    color: rgb(249, 134, 41);
+    font-size: clamp(24px, 2vw, 50px);
+    letter-spacing: 1px;
 }
 
 .game {
     position: relative;
-    max-width: 720px;
+    max-width: 854px;
     width: 100%;
+    border-radius: 8px;
+    display: flex;
+    box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.5);
 }
 
 .start-screen {
@@ -26,7 +38,7 @@ body {
     right: 0;
     bottom: 0;
     height: 480px;
-    width: 720px;
+    width: 854px;
 }
 
 .start-screen img {
@@ -44,7 +56,7 @@ canvas {
     background-color: black;
 }
 
-@media only screen and (max-width: 720px) { 
+@media only screen and (max-width: 854px) { 
     .game {
         width: 100vw;
         height: auto;
@@ -55,7 +67,7 @@ canvas {
     .game {
         height: 100vh;
         width: auto;
-        aspect-ratio: 720 / 480;
+        aspect-ratio: 854 / 480;
     }
 }
 
@@ -67,11 +79,7 @@ canvas {
     width: 100vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.9); 
-    z-index: 10; 
-    color: rgb(249, 134, 41);
-    font-family: 'zabars', sans-serif;
-    font-size: clamp(24px, 2vw, 50px);
-    letter-spacing: 1px;
+    z-index: 10;
 }
 
 .rotate-content {
@@ -107,19 +115,14 @@ canvas {
     display: none !important;
 }
           
-@font-face {
-    font-family: zabars;
-    src: url(./assets/font/Zabars.ttf);
-}
-
 .menu {
     position: absolute;
     top: 25px;
-    left: 240px;
+    left: 180px;
     right: 0;
     bottom: 0;
     display: flex;
-    width: 240px;
+    width: 360px;
     justify-content: space-between;
 }
 
@@ -128,6 +131,23 @@ canvas {
     height: 50px;
 }
 
-.button {
+.button-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     cursor: pointer;
+    width: 100px;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+
+.button-item:hover {
+    filter: drop-shadow(0 2px 3px rgba(100, 100, 100, 0.5));
+}
+
+.music-off {
+    content: url(./assets/icons/mute.png);
+}
+
+.music-on {
+    content: url(./assets/icons/high-volume.png);
 }

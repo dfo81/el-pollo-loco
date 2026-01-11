@@ -4,13 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>El pollo loco</title>
-    <link
-      rel="shortcut icon"
-      href="./assets/img/6_salsa_bottle/salsa_bottle.png"
-      type="image/x-icon"
-    />
+    <link rel="shortcut icon" href="./assets/img/6_salsa_bottle/salsa_bottle.png" type="image/x-icon" />
     <link rel="stylesheet" href="style.css" />
-    
+
     <script src="./classes/drawable-object.class.js"></script>
     <script src="./classes/movable-object.class.js"></script>
     <script src="./classes/keyboard.class.js"></script>
@@ -33,9 +29,8 @@
     <script src="./classes/throwable-object.class.js"></script>
     <script src="./game.js"></script>
     <script src="./levels/level1.js"></script>
-    
   </head>
-  <body>
+  <body onload="init()">
     <div id="rotateScreen" class="rotate-screen">
       <div class="rotate-content">
         <img src="assets/icons/rotate.png" alt="Rotate Icon" />
@@ -44,15 +39,27 @@
     </div>
     <div class="game">
       <div id="startScreen" class="start-screen">
-        <img src="./assets/img/9_intro_outro_screens/start/startscreen_1.png" alt="">
+        <img src="./assets/img/9_intro_outro_screens/start/startscreen_1.png" alt="" />
       </div>
       <div class="menu">
-        <img class="button" src="./assets/icons/play.png" alt="play" onclick="startGame()">
-        <img class="button" src="./assets/icons/high-volume.png" alt="volume">
-        <img class="button" src="./assets/icons/setting.png" alt="">
-        <img class="button" src="./assets/icons/full-screen.png" alt="">
+        <div class="button-item">
+          <img class="button" src="./assets/icons/play.png" alt="Play" onclick="startGame()" />
+          <span>Play</span>
+        </div>
+        <div class="button-item">
+          <img class="button music-off" id="music" alt="Volume" onclick="toggleMusic()" />
+          <span>Music</span>
+        </div>
+        <div class="button-item">
+          <img class="button" src="./assets/icons/lyric.png" alt="Lyrics" />
+          <span>Lyrics</span>
+        </div>
+        <div class="button-item">
+          <img class="button" src="./assets/icons/full-screen.png" alt="Fullscreen" />
+          <span>Fullscreen</span>
+        </div>
       </div>
-      <canvas id="canvas" width="720" height="480"></canvas>
+      <canvas id="canvas" width="854" height="480"></canvas>
     </div>
   </body>
 </html>
