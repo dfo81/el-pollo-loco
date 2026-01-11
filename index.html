@@ -43,13 +43,14 @@
       </div>
     </div>
     <div class="game">
-      <div id="startScreen" class="start-screen" onclick="startGame()">
+      <div id="startScreen" class="start-screen">
         <img src="./assets/img/9_intro_outro_screens/start/startscreen_1.png" alt="">
       </div>
       <div class="menu">
-        <img src="./assets/icons/play.png" alt="">
-        <img src="./assets/icons/mute.png" alt="">
-        <img src="./assets/icons/" alt="">
+        <img class="button" src="./assets/icons/play.png" alt="play" onclick="startGame()">
+        <img class="button" src="./assets/icons/high-volume.png" alt="volume">
+        <img class="button" src="./assets/icons/setting.png" alt="">
+        <img class="button" src="./assets/icons/full-screen.png" alt="">
       </div>
       <canvas id="canvas" width="720" height="480"></canvas>
     </div>

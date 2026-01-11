@@ -27,7 +27,8 @@ function startGame() {
   sounds.MUSIC.play();
   canvas = document.getElementById("canvas");
   world = new World(canvas, keyboard, sounds);
-  world.startGame(); 
+  world.startGame();
+document.getElementsByClassName('menu')[0].classList.add('d-none'); 
 }
 
 setInterval(() => {
