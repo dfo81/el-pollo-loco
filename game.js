@@ -24,13 +24,13 @@ window.addEventListener("keyup", (e) => {
 });
 
 function init() {
+  let musicBtn = document.getElementById("music");
   if (music) {
-    document.getElementById("music").classList.remove("music-off");
-    document.getElementById("music").classList.add("music-on");
-    sounds.MUSIC.play();
+    musicBtn.classList.add("music-on");
+    musicBtn.classList.remove("music-off");
   } else {
-    document.getElementById("music").classList.add("music-off");
-    document.getElementById("music").classList.remove("music-on");
+    musicBtn.classList.add("music-off");
+    musicBtn.classList.remove("music-on");
   }
 }
 
@@ -39,7 +39,12 @@ function startGame() {
   canvas = document.getElementById("canvas");
   world = new World(canvas, keyboard, sounds);
   world.startGame();
-  document.getElementsByClassName("menu")[0].classList.add("d-none");
+  if (music) {
+    sounds.MUSIC.play();
+  }
+  document.querySelectorAll(".button-item").forEach((btn) => {
+    btn.classList.add("opacity-low");
+  });
 }
 
 setInterval(() => {
@@ -68,11 +73,11 @@ function removeTasksOfObject(owner) {
 
 function toggleMusic() {
   music = !music;
+  localStorage.setItem("music", music);
   if (music) {
     sounds.MUSIC.play();
   } else {
     sounds.MUSIC.stop();
   }
-  localStorage.setItem("music", music);
   init();
 }
