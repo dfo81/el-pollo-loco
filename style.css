@@ -203,6 +203,10 @@ canvas {
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
 }
 
+.button-item.opacity-low {
+    opacity: 0.5;
+}
+
 .button-item:hover {
   filter: drop-shadow(0 2px 3px rgba(100, 100, 100, 0.5));
 }

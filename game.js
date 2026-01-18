@@ -28,12 +28,11 @@ window.addEventListener("keyup", (e) => {
 function init() {
   bindTouchEvents();
   if (music) {
-    document.getElementById("music").classList.remove("music-off");
-    document.getElementById("music").classList.add("music-on");
-    sounds.MUSIC.play();
+    musicBtn.classList.add("music-on");
+    musicBtn.classList.remove("music-off");
   } else {
-    document.getElementById("music").classList.add("music-off");
-    document.getElementById("music").classList.remove("music-on");
+    musicBtn.classList.add("music-off");
+    musicBtn.classList.remove("music-on");
   }
 }
 
@@ -77,12 +76,12 @@ function removeTasksOfObject(owner) {
 
 function toggleMusic() {
   music = !music;
+  localStorage.setItem("music", music);
   if (music) {
     sounds.MUSIC.play();
   } else {
     sounds.MUSIC.stop();
   }
-  localStorage.setItem("music", music);
   init();
 }
 
