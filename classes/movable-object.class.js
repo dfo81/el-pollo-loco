@@ -28,12 +28,15 @@ class MovableObject extends DrawableObject {
   }
 
   isAboveGround() {
-    if (this instanceof ThrowableObject) {
-      return true;
-    } else {
-      return this.y < this.groundLevel;
-    }
+  if (this instanceof ThrowableObject) {
+    return true;
+  } else if (this instanceof Character && this.isDying && this.energy <= 0) {
+    // Er fällt erst durch den Boden, wenn die Pause vorbei ist (energy ist dann 0)
+    return true;
+  } else {
+    return this.y < this.groundLevel;
   }
+}
 
   isColliding(mo) {
     return (
@@ -49,6 +52,7 @@ class MovableObject extends DrawableObject {
     this.energy -= 10;
     if (this.energy < 0) {
       this.energy = 0;
+      this.speedY = 25;
     } else {
       this.lastHit = new Date().getTime();
     }

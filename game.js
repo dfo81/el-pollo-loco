@@ -1,97 +1,94 @@
-let canvas, world;
+let canvas;
+let world;
 let keyboard = new Keys();
 let sounds = new Sounds();
+let isKeyDown = {};
 let gameTasks = [];
 let gamePaused = true;
 let music = localStorage.getItem("music") === "true";
 
-function init() {
-  updateMusicUI();
-  updateMusicState();
-  bindTouchEvents();
-}
-
-function updateMusicState() {
-  sounds.MUSIC.stop();
-  sounds.BOSS_MUSIC.stop();
-  if (!music) return;
-  if (world && world.bossFirstContact) {
-    sounds.BOSS_MUSIC.play();
-  } else {
-    sounds.MUSIC.play();
+window.addEventListener("keydown", (e) => {
+  if (!isKeyDown[e.code]) {
+    if (e.code === "Space") keyboard.JUMP_ONCE = true;
+    if (e.code === "KeyD") keyboard.THROW_ONCE = true;
+    if (e.code === "ArrowLeft") keyboard.LEFT = true;
+    if (e.code === "ArrowRight") keyboard.RIGHT = true;
+    if (e.code === "KeyF") toggleFullscreen();
+    if (e.code === "KeyS") toggleMusic();
   }
-}
+  isKeyDown[e.code] = true;
+});
 
-function updateMusicUI() {
-  const musicBtn = document.getElementById("music");
+window.addEventListener("keyup", (e) => {
+  isKeyDown[e.code] = false;
+  if (e.code === "ArrowLeft") keyboard.LEFT = false;
+  if (e.code === "ArrowRight") keyboard.RIGHT = false;
+});
+
+function init() {
+  let musicBtn = document.getElementById("music");
   if (!musicBtn) return;
-  musicBtn.classList.toggle("music-on", music);
-  musicBtn.classList.toggle("music-off", !music);
+  if (music) {
+    musicBtn.classList.add("music-on");
+    musicBtn.classList.remove("music-off");
+  } else {
+    musicBtn.classList.add("music-off");
+    musicBtn.classList.remove("music-on");
+  }
+  bindTouchEvents();
 }
 
 function startGame() {
   document.getElementById("startScreen").classList.add("d-none");
-  document.getElementById("playButtons").classList.remove("d-none");
-  document.querySelector(".menu").classList.add("d-none");
   canvas = document.getElementById("canvas");
+  document.getElementById("playButtons").classList.remove("d-none");
+  
   world = new World(canvas, keyboard, sounds);
+  world.startGame(); // Startet Pepe und Gegner-Animationen
+  
+  document.getElementsByClassName("menu")[0].classList.add("d-none");
   gamePaused = false;
+  
+  if (music) {
+    sounds.MUSIC.play();
+  }
 }
 
 function toggleMusic() {
   music = !music;
   localStorage.setItem("music", music);
-  updateMusicUI();
-  updateMusicState();
+  
+  if (music) {
+    if (world && world.bossFirstContact && !gamePaused) {
+      sounds.BOSS_MUSIC.play();
+      sounds.MUSIC.stop();
+    } else {
+      sounds.MUSIC.play();
+    }
+  } else {
+    sounds.MUSIC.stop();
+    sounds.BOSS_MUSIC.stop();
+  }
+  init(); // Aktualisiert die Icons
 }
 
 function toggleFullscreen() {
-  const container = document.getElementById("game");
+  let container = document.getElementById("game");
   if (!document.fullscreenElement) {
-    container.requestFullscreen().catch(err => console.error("Fullscreen Error:", err));
+    container.requestFullscreen().catch((err) => {
+      console.log(`Fehler beim Aktivieren des Vollbildmodus: ${err.message}`);
+    });
   } else {
     document.exitFullscreen();
   }
 }
 
-window.addEventListener("keydown", (e) => {
-  const keyMap = {
-    "Space": "JUMP_ONCE",
-    "KeyD": "THROW_ONCE",
-    "ArrowLeft": "LEFT",
-    "ArrowRight": "RIGHT"
-  };
-
-  if (keyMap[e.code]) keyboard[keyMap[e.code]] = true;
-  if (e.code === "KeyF") toggleFullscreen();
-  if (e.code === "KeyS") toggleMusic();
-});
-
-window.addEventListener("keyup", (e) => {
-  if (e.code === "ArrowLeft") keyboard.LEFT = false;
-  if (e.code === "ArrowRight") keyboard.RIGHT = false;
-});
-
-function bindTouchEvents() {
-  const controls = {
-    "btnLeft": "LEFT",
-    "btnRight": "RIGHT",
-    "btnJump": "JUMP_ONCE",
-    "btnThrow": "THROW_ONCE"
-  };
-
-  Object.entries(controls).forEach(([id, key]) => {
-    const btn = document.getElementById(id);
-    if (!btn) return;
-    btn.addEventListener("touchstart", (e) => { e.preventDefault(); keyboard[key] = true; });
-    btn.addEventListener("touchend", (e) => { e.preventDefault(); keyboard[key] = false; });
-  });
-}
+// --- GAME TASKS ENGINE ---
 
 setInterval(() => {
   if (gamePaused) return;
-  const now = Date.now();
-  gameTasks.forEach(task => {
+  gameTasks.forEach((task) => {
+    let now = Date.now();
     if (now - task.lastRun >= task.interval) {
       task.action();
       task.lastRun = now;
@@ -100,13 +97,47 @@ setInterval(() => {
 }, 1000 / 120);
 
 function addGameTask(owner, action, interval) {
-  gameTasks.push({ owner, action, interval, lastRun: 0 });
+  gameTasks.push({
+    owner: owner,
+    action: action,
+    interval: interval,
+    lastRun: 0,
+  });
 }
 
 function removeTasksOfObject(owner) {
-  gameTasks = gameTasks.filter(task => task.owner !== owner);
+  gameTasks = gameTasks.filter((task) => task.owner !== owner);
 }
 
-const checkOrientation = () => gamePaused = window.innerHeight > window.innerWidth;
+// --- MOBILE & ORIENTATION ---
+
+function bindTouchEvents() {
+  const bindBtn = (id, key) => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      keyboard[key] = true;
+    });
+    btn.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      keyboard[key] = false;
+    });
+  };
+
+  bindBtn("btnLeft", "LEFT");
+  bindBtn("btnRight", "RIGHT");
+  bindBtn("btnJump", "JUMP_ONCE");
+  bindBtn("btnThrow", "THROW_ONCE");
+}
+
 window.addEventListener("resize", checkOrientation);
 window.addEventListener("load", checkOrientation);
+
+function checkOrientation() {
+  if (window.innerHeight > window.innerWidth) {
+    gamePaused = true;
+  } else {
+    gamePaused = false;
+  }
+}

@@ -70,7 +70,7 @@ canvas {
     justify-content: space-between;
     left: 0;
     right: 0;
-    padding: 15px;
+    padding: 10px 25px;
     bottom: 0;
 }
 
@@ -82,7 +82,7 @@ canvas {
 
 .action-buttons {
     display: flex;
-    gap: 15px;
+    gap: 30px;
 }
 
 @media (pointer: coarse) {
