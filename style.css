@@ -17,7 +17,7 @@ body {
   overflow: hidden;
   margin: 0;
   padding: 0;
-  color: rgb(249, 134, 41);
+  color: rgb(244, 123, 23);
   font-size: clamp(20px, 2vw, 24px);
   letter-spacing: 1px;
 }
@@ -36,6 +36,7 @@ h1 {
   border-radius: 8px;
   display: flex;
   box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.5);
+  outline: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .start-screen {
@@ -65,6 +66,7 @@ canvas {
     position: absolute;
     width: 100%;
     box-sizing: border-box;
+    display: none;
     justify-content: space-between;
     left: 0;
     right: 0;
@@ -252,8 +254,8 @@ canvas {
 
 @media (max-width: 854px) or (max-height: 480px) {
   .play-buttons img {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
   }
 }
 
