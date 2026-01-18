@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -37,7 +37,8 @@
         <p>Please Rotate Your Device</p>
       </div>
     </div>
-    <div class="game">
+    <h1>El pollo loco</h1>
+    <div class="game" id="game">
       <div id="startScreen" class="start-screen">
         <img src="./assets/img/9_intro_outro_screens/start/startscreen_1.png" alt="" />
       </div>
@@ -55,8 +56,18 @@
           <span>Lyrics</span>
         </div>
         <div class="button-item">
-          <img class="button" src="./assets/icons/full-screen.png" alt="Fullscreen" />
+          <img class="button" src="./assets/icons/full-screen.png" alt="Fullscreen" onclick="toggleFullscreen()"/>
           <span>Fullscreen</span>
+        </div>
+      </div>
+      <div class="play-buttons d-none" id="playButtons">
+        <div class="action-buttons">
+          <img src="./assets/icons/left.png" id="btnLeft" alt="" />
+          <img src="./assets/icons/right.png" id="btnRight" alt="" />
+        </div>
+        <div class="action-buttons">
+          <img src="./assets/icons/up.png" id="btnJump" alt="" />
+          <img src="./assets/icons/throw.png" id="btnThrow" alt="" />
         </div>
       </div>
       <canvas id="canvas" width="854" height="480"></canvas>

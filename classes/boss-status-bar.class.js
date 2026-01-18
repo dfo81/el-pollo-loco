@@ -1,5 +1,5 @@
 class BossStatusBar extends DrawableObject {
-  x = 555;
+  x = 690;
   y = 5;
   height = 40;
   width = 150;

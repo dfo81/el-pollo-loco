@@ -8,6 +8,7 @@ class World {
   statusBar = new StatusBar();
   bossStatusBar = new BossStatusBar();
   bossFirstContact = false;
+  scaredSoundPlayed = false;
   bottleStatusBar = new BottleStatusBar();
   coinsStatusBar = new CoinsStatusBar();
   throwableObjects = [];
@@ -29,32 +30,32 @@ class World {
   }
 
   run() {
-    addGameTask(this, ()=> {
-      this.checkCollision();
-      this.checkCoinCollisions();
-      this.checkThrowObject();
-      this.checkPickBottle();
-      this.bottleCollision();
-      this.checkMeetBoss();
-    }, 15);
+    addGameTask(
+      this,
+      () => {
+        this.checkCollision();
+        this.checkCoinCollisions();
+        this.checkThrowObject();
+        this.checkPickBottle();
+        this.bottleCollision();
+        this.checkMeetBoss();
+      },
+      15,
+    );
   }
 
   startGame() {
-      this.character.start();
-      this.level.enemies.forEach((enemy) => {
-        enemy.animate();
-      });
+    this.character.start();
+    this.level.enemies.forEach((enemy) => {
+      enemy.animate();
+    });
   }
 
   checkThrowObject() {
     if (this.keyboard.THROW_ONCE) {
       if (this.character.bottleCount >= 10 && !this.character.isDead()) {
         let offsetX = this.character.otherDirection ? -10 : 75;
-        let bottle = new ThrowableObject(
-          this.character.x + offsetX,
-          this.character.y + 120,
-          this.character.otherDirection
-        );
+        let bottle = new ThrowableObject(this.character.x + offsetX, this.character.y + 120, this.character.otherDirection);
         this.throwableObjects.push(bottle);
         this.character.throwBottle();
         this.bottleStatusBar.setPercentage(this.character.bottleCount);
@@ -87,11 +88,7 @@ class World {
   handleChickenCollision(enemy) {
     // PRIORITÄT 1: Pepe ist in der Luft (Sprung-Attacke)
     // Wir prüfen speedY <= 0, damit er auch am Scheitelpunkt des Sprungs trifft
-    if (
-      this.character.isAboveGround() &&
-      this.character.speedY <= 0 &&
-      !enemy.isDead
-    ) {
+    if (this.character.isAboveGround() && this.character.speedY <= 0 && !enemy.isDead) {
       this.executeEnemyKill(enemy);
     }
     // PRIORITÄT 2: Pepe ist auf dem Boden (Kollision verursacht Schaden)
@@ -238,19 +235,31 @@ class World {
   }
 
   checkMeetBoss() {
-    if (this.character.x > 2000) {
-      if (sounds.SCARED_BOSS.paused) {
-        sounds.SCARED_BOSS.play();
-      }
-      if (!this.bossFirstContact) {
-        this.bossFirstContact = true;
-        sounds.MUSIC.stop();
+  if (gamePaused) return;
+
+  if (this.character.x > 1900) {
+    // SFX: Der Erschrecken-Sound (unabhängig von der Hintergrundmusik)
+    if (!this.scaredSoundPlayed) {
+      this.scaredSoundPlayed = true; 
+      sounds.SCARED_BOSS.play();
+    }
+
+    // BGM: Der Wechsel zur Boss-Hintergrundmusik
+    if (!this.bossFirstContact) {
+      this.bossFirstContact = true;
+      sounds.MUSIC.stop();
+      // Nur die Boss-MUSIK ist vom music-Toggle abhängig
+      if (music) {
         sounds.BOSS_MUSIC.play();
       }
-    } else {
-      if (sounds.SCARED_BOSS.play()) {
-        sounds.SCARED_BOSS.stop();
-      }
+    }
+  } else {
+    // Hysterese: Erst wenn Pepe sich wieder ein Stück entfernt, 
+    // wird der "Scared"-Trigger für den nächsten Anlauf scharf geschaltet.
+    if (this.character.x < 1800) {
+      sounds.SCARED_BOSS.pause()
+      this.scaredSoundPlayed = false;
     }
   }
+}
 }

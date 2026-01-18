@@ -4,7 +4,7 @@ let keyboard = new Keys();
 let sounds = new Sounds();
 let isKeyDown = {};
 let gameTasks = [];
-let gamePaused = false;
+let gamePaused = true;
 let music = localStorage.getItem("music") === "true";
 
 window.addEventListener("keydown", (e) => {
@@ -13,6 +13,8 @@ window.addEventListener("keydown", (e) => {
     if (e.code === "KeyD") keyboard.THROW_ONCE = true;
     if (e.code === "ArrowLeft") keyboard.LEFT = true;
     if (e.code === "ArrowRight") keyboard.RIGHT = true;
+    if (e.code === "KeyF") toggleFullscreen();
+    if (e.code === "KeyS") toggleMusic();
   }
   isKeyDown[e.code] = true;
 });
@@ -24,6 +26,7 @@ window.addEventListener("keyup", (e) => {
 });
 
 function init() {
+  bindTouchEvents();
   if (music) {
     document.getElementById("music").classList.remove("music-off");
     document.getElementById("music").classList.add("music-on");
@@ -37,9 +40,15 @@ function init() {
 function startGame() {
   document.getElementById("startScreen").classList.add("d-none");
   canvas = document.getElementById("canvas");
+  document.getElementById("playButtons").classList.remove("d-none");
   world = new World(canvas, keyboard, sounds);
   world.startGame();
   document.getElementsByClassName("menu")[0].classList.add("d-none");
+  gamePaused = false;
+}
+
+function pauseGame() {
+  gamePaused = true;
 }
 
 setInterval(() => {
@@ -75,4 +84,41 @@ function toggleMusic() {
   }
   localStorage.setItem("music", music);
   init();
+}
+
+// Prüft beim Laden und bei jeder Größenänderung die Orientierung
+window.addEventListener("resize", checkOrientation);
+window.addEventListener("load", checkOrientation);
+
+function checkOrientation() {
+  // Wenn die Höhe größer als die Breite ist (Portrait)
+  if (window.innerHeight > window.innerWidth) {
+    gamePaused = true;
+  } else {
+    gamePaused = false;
+  }
+}
+
+function toggleFullscreen() {
+  let container = document.getElementById("game");
+  if (!document.fullscreenElement) {
+    container.requestFullscreen().catch((err) => {
+      console.log(`Fehler beim Aktivieren des Vollbildmodus: ${err.message}`);
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+function bindTouchEvents() {
+    const bindBtn = (id, key) => {
+        const btn = document.getElementById(id);
+        btn.addEventListener('touchstart', (e) => { e.preventDefault(); keyboard[key] = true; });
+        btn.addEventListener('touchend', (e) => { e.preventDefault(); keyboard[key] = false; });
+    };
+
+    bindBtn('btnLeft', 'LEFT');
+    bindBtn('btnRight', 'RIGHT');
+    bindBtn('btnJump', 'JUMP_ONCE');
+    bindBtn('btnThrow', 'THROW_ONCE');
 }
