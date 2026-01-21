@@ -141,3 +141,7 @@ function checkOrientation() {
     gamePaused = false;
   }
 }
+
+function showLyrics() {
+  document.getElementById("lyricsScreen").classList.remove("d-none");
+}

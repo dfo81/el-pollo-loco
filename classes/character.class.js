@@ -110,9 +110,7 @@ class Character extends MovableObject {
   }
 
   animate() {
-    addGameTask(
-      this,
-      () => {
+    addGameTask(this, () => {
         if (!this.world || !this.world.keyboard) return;
         if (this.isDead()) {
           this.playAnimation(this.IMAGES_DEAD, 5);
@@ -130,9 +128,7 @@ class Character extends MovableObject {
             this.playAnimation(this.IMAGES_IDLE, 5);
           }
         }
-      },
-      15,
-    );
+      }, 15);
   }
 
   hit() {
@@ -155,9 +151,7 @@ class Character extends MovableObject {
   }
 
   moving() {
-    addGameTask(
-      this,
-      () => {
+    addGameTask(this, () => {
         this.manageWalkingSound();
         if (
           this.world.keyboard.RIGHT ||
@@ -188,9 +182,7 @@ class Character extends MovableObject {
           this.world.keyboard.JUMP_ONCE = false;
         }
         this.world.camera_x = -this.x + 50;
-      },
-      15,
-    );
+      }, 15);
   }
 
   manageWalkingSound() {
