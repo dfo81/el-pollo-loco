@@ -12,6 +12,7 @@ class World {
   bottleStatusBar = new BottleStatusBar();
   coinsStatusBar = new CoinsStatusBar();
   throwableObjects = [];
+  lastThrow = 0;
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
@@ -24,6 +25,9 @@ class World {
 
   setWorld() {
     this.character.world = this;
+    this.level.enemies.forEach((enemy) => {
+      enemy.world = this;
+    });
   }
 
   run() {
@@ -36,8 +40,9 @@ class World {
         this.checkPickBottle();
         this.bottleCollision();
         this.checkMeetBoss();
+        this.checkGameOver();
       },
-      15
+      15,
     );
   }
 
@@ -49,20 +54,26 @@ class World {
   }
 
   checkThrowObject() {
+    let currentTime = new Date().getTime();
+    let timeSinceLastThrow = currentTime - this.lastThrow;
+
     if (this.keyboard.THROW_ONCE) {
-      if (this.character.bottleCount >= 10 && !this.character.isDead()) {
-        let offsetX = this.character.otherDirection ? -10 : 75;
-        let bottle = new ThrowableObject(
-          this.character.x + offsetX,
-          this.character.y + 120,
-          this.character.otherDirection
-        );
-        this.throwableObjects.push(bottle);
-        this.character.throwBottle();
-        this.bottleStatusBar.setPercentage(this.character.bottleCount);
+      if (timeSinceLastThrow > 1000) {
+        if (this.character.bottleCount > 0 && !this.character.isDead()) {
+          this.executeThrow(currentTime);
+        }
       }
       this.keyboard.THROW_ONCE = false;
     }
+  }
+
+  executeThrow(currentTime) {
+    let offsetX = this.character.otherDirection ? -10 : 75;
+    let bottle = new ThrowableObject(this.character.x + offsetX, this.character.y + 100, this.character.otherDirection);
+    this.throwableObjects.push(bottle);
+    this.character.throwBottle();
+    this.bottleStatusBar.setPercentage(this.character.bottleCount);
+    this.lastThrow = currentTime;
   }
 
   checkCollision() {
@@ -86,7 +97,7 @@ class World {
 
   handleChickenCollision(enemy) {
     if (this.character.isAboveGround() && this.character.speedY <= 0 && !enemy.isDead) {
-      this.executeEnemyKill(enemy);
+      this.executeEnemyKill(enemy, true);
     } else if (!enemy.isDead && !this.character.isAboveGround()) {
       if (!this.character.isHurt() && !this.character.isDead()) {
         this.character.hit();
@@ -95,9 +106,11 @@ class World {
     }
   }
 
-  executeEnemyKill(enemy) {
+  executeEnemyKill(enemy, shouldJump) {
     enemy.isDead = true;
-    this.character.speedY = 12;
+    if (shouldJump) {
+      this.character.speedY = 12;
+    }
     if (enemy instanceof Chicks) {
       sounds.CHICK_DEAD.play();
     } else {
@@ -121,7 +134,7 @@ class World {
             this.bossStatusBar.setPercentage(enemy.energy);
           } else if (!enemy.isDead) {
             bottle.splash();
-            this.executeEnemyKill(enemy);
+            this.executeEnemyKill(enemy, false);
           }
         }
       });
@@ -222,23 +235,67 @@ class World {
   checkMeetBoss() {
     if (gamePaused) return;
 
-    if (this.character.x > 1900) {
-      if (!this.scaredSoundPlayed) {
-        this.scaredSoundPlayed = true;
-        sounds.SCARED_BOSS.play();
-      }
-      if (!this.bossFirstContact) {
-        this.bossFirstContact = true;
-        sounds.MUSIC.stop();
-        if (music) {
-          sounds.BOSS_MUSIC.play();
-        }
-      }
-    } else {
-      if (this.character.x < 1800) {
-        sounds.SCARED_BOSS.pause();
-        this.scaredSoundPlayed = false;
+    // Wir suchen den Boss im enemies-Array
+    let boss = this.level.enemies.find((e) => e instanceof Boss);
+
+    if (boss) {
+      // Distanz berechnen (Boss X minus Pepe X)
+      let distance = boss.x - this.character.x;
+
+      if (distance < 600) {
+        this.triggerBossFight();
       }
     }
   }
+
+  triggerBossFight() {
+    // 1. Sound abspielen (nur einmal triggern)
+    if (!this.scaredSoundPlayed) {
+      this.scaredSoundPlayed = true;
+      sounds.SCARED_BOSS.play();
+    }
+
+    // 2. Boss-Modus in der Welt aktivieren
+    if (!this.bossFirstContact) {
+      this.bossFirstContact = true;
+      sounds.MUSIC.stop();
+      if (music) {
+        sounds.BOSS_MUSIC.play();
+      }
+    }
+  }
+
+  gameWon = false;
+
+  checkGameOver() {
+    let boss = this.level.enemies.find((e) => e instanceof Boss);
+    if (boss && boss.y > 200 && !this.gameWon) {
+      this.executeWinSequence();
+    }
+    if (this.character.energy <= 0 && this.character.y > 350 && !this.gameWon) {
+    this.executeLoseSequence();
+  }
+  }
+
+  executeWinSequence() {
+  this.gameWon = true;
+  gamePaused = true;
+  this.level.enemies.forEach(enemy => {
+      enemy.speed = 0; 
+  });
+  sounds.BOSS_MUSIC.stop();
+  sounds.WIN.play();
+  document.getElementById('winScreen').classList.remove('d-none');
+}
+
+  executeLoseSequence() {
+  if (gamePaused) return; 
+  gamePaused = true;
+  sounds.BOSS_MUSIC.stop();
+  sounds.MUSIC.stop();
+  sounds.SCARED_BOSS.stop();
+  if (sounds.LOSE) sounds.LOSE.play();
+  
+  document.getElementById('loseScreen').classList.remove('d-none');
+}
 }

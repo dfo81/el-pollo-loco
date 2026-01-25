@@ -15,6 +15,8 @@ window.addEventListener("keydown", (e) => {
     if (e.code === "ArrowRight") keyboard.RIGHT = true;
     if (e.code === "KeyF") toggleFullscreen();
     if (e.code === "KeyS") toggleMusic();
+    if (e.code === "KeyP") togglePause();
+    if (e.code === "KeyL") showLyrics();
   }
   isKeyDown[e.code] = true;
 });
@@ -58,12 +60,14 @@ function toggleMusic() {
   music = !music;
   localStorage.setItem("music", music);
   
-  if (music) {
-    if (world && world.bossFirstContact && !gamePaused) {
+  if (music && !gamePaused) {
+    if (world && world.bossFirstContact) {
       sounds.BOSS_MUSIC.play();
       sounds.MUSIC.stop();
+      sounds.SCARED_BOSS.play();
     } else {
       sounds.MUSIC.play();
+      sounds.SCARED_BOSS.stop();
     }
   } else {
     sounds.MUSIC.stop();
@@ -88,13 +92,13 @@ function toggleFullscreen() {
 setInterval(() => {
   if (gamePaused) return;
   gameTasks.forEach((task) => {
-    let now = Date.now();
+    let now = performance.now();
     if (now - task.lastRun >= task.interval) {
       task.action();
       task.lastRun = now;
     }
   });
-}, 1000 / 120);
+}, 1000 / 60);
 
 function addGameTask(owner, action, interval) {
   gameTasks.push({
@@ -144,4 +148,24 @@ function checkOrientation() {
 
 function showLyrics() {
   document.getElementById("lyricsScreen").classList.remove("d-none");
+}
+
+function togglePause() {
+  gamePaused = !gamePaused;
+  
+  if (gamePaused) {
+    sounds.MUSIC.stop();
+    sounds.BOSS_MUSIC.stop();
+    sounds.SCARED_BOSS.stop();
+  } else if (music) { // Nur wenn Musik generell an war, wieder starten
+    if (world && world.bossFirstContact) {
+      sounds.BOSS_MUSIC.play();
+      sounds.SCARED_BOSS.play();
+    } else {
+      sounds.MUSIC.play();
+    }
+  }
+
+  let pauseBtn = document.getElementById("btnPause");
+  if (pauseBtn) pauseBtn.classList.toggle("gamePaused", gamePaused);
 }

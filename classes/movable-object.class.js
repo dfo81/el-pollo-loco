@@ -13,30 +13,32 @@ class MovableObject extends DrawableObject {
     right: 0,
   };
 
-  applyGravity() {
-    addGameTask(this, () => {
-      if (this.isAboveGround() || this.speedY > 0) {
-        this.y -= this.speedY;
-        this.speedY -= this.acceleration;
-      } else {
-        if (!(this instanceof ThrowableObject)) {
-          this.y = this.groundLevel;
-          this.speedY = 0;
-        }
+ applyGravity() {
+  addGameTask(this, () => {
+    if (this.isAboveGround() || this.speedY > 0 || this.energy <= 0) {
+      this.y -= this.speedY;
+      this.speedY -= this.acceleration;
+    } else {
+      if (!(this instanceof ThrowableObject)) {
+        this.y = this.groundLevel;
+        this.speedY = 0;
       }
-    }, 15);
-  }
+    }
+  }, 15);
+}
 
   isAboveGround() {
-  if (this instanceof ThrowableObject) {
-    return true;
-  } else if (this instanceof Character && this.isDying && this.energy <= 0) {
-    // Er fällt erst durch den Boden, wenn die Pause vorbei ist (energy ist dann 0)
-    return true;
-  } else {
-    return this.y < this.groundLevel;
+    if (this instanceof Boss) {
+      return this.y = 50;
+    }
+    if (this instanceof ThrowableObject) {
+      return true;
+    } else if (this instanceof Character && this.isDying && this.energy <= 0) {
+      return true;
+    } else {
+      return this.y < this.groundLevel;
+    }
   }
-}
 
   isColliding(mo) {
     return (
@@ -57,16 +59,13 @@ class MovableObject extends DrawableObject {
       this.lastHit = new Date().getTime();
     }
   }
-
   isHurt() {
     let timepassed = new Date().getTime() - this.lastHit;
     return timepassed < 750;
   }
-
   isDead() {
     return this.energy == 0;
   }
-
   moveLeft() {
     this.x -= this.speed;
   }

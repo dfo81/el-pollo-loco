@@ -4,4 +4,7 @@ class Keys {
     THROW_ONCE = false;
     JUMP_ONCE = false;
     FULLSCREEN = false;
+    MUSIC = false;
+    PAUSE = false;
+    LYRICS = false;
 }

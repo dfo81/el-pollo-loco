@@ -6,8 +6,14 @@ class Sound {
     }
 
     play() {
+        if (this.audio.paused) {
+            this.audio.play().catch(e => {});
+        }
+    }
+
+    playFromStart() {
         this.audio.currentTime = 0;
-        this.audio.play();
+        this.audio.play().catch(e => {});
     }
 
     stop() {

@@ -42,6 +42,12 @@
       <div id="startScreen" class="start-screen">
         <img src="./assets/img/9_intro_outro_screens/start/startscreen_1.png" alt="" />
       </div>
+      <div id="winScreen" class="win-screen d-none">
+        <img src="./assets/img/You won, you lost/You Win A.png" alt="">
+      </div>
+      <div id="loseScreen" class="lose-screen d-none">
+        <img src="./assets/img/You won, you lost/You lost.png" alt="">
+      </div>
       <div class="menu">
         <div class="button-item">
           <img class="button" src="./assets/icons/play.png" alt="Play" onclick="startGame()" />
@@ -65,6 +71,11 @@
           <img src="./assets/icons/left.png" id="btnLeft" alt="" />
           <img src="./assets/icons/right.png" id="btnRight" alt="" />
         </div>
+        <div class="action-buttons">
+          <img id="btnPause" alt="" onclick="togglePause()"/>
+          <img src="./assets/icons/lyric.png" alt="" onclick="showLyrics()"/>
+          <img src="./assets/icons/full-screen.png" alt="" onclick="toggleFullscreen()"/>
+          </div>
         <div class="action-buttons">
           <img src="./assets/icons/up.png" id="btnJump" alt="" />
           <img src="./assets/icons/throw.png" id="btnThrow" alt="" />

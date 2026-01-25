@@ -12,5 +12,7 @@ class Sounds {
         this.SCARED_BOSS = new Sound('assets/sounds/scared-rooster.mp3', 0.7, true);
         this.BOTTLE = new Sound('assets/sounds/bottle.mp3', 0.3, false);
         this.CHICK_DEAD = new Sound('assets/sounds/chick-dead.mp3', 0.3, false);
+        this.WIN = new Sound('assets/sounds/win.mp3', 1, false);
+        this.LOSE = new Sound('assets/sounds/lose.mp3', 1, false);
     }
 }

@@ -26,7 +26,7 @@ h1 {
   text-align: center;
   font-size: 72px;
   letter-spacing: 5px;
-  text-shadow: 0px 0px 10px rgba(0, 0, 0, 1);
+  text-shadow: 0 0 5px rgba(0, 0, 0, 1);
 }
 
 .game {
@@ -39,7 +39,7 @@ h1 {
   outline: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-.start-screen {
+.start-screen  {
   position: absolute;
   top: 0;
   left: 0;
@@ -47,7 +47,16 @@ h1 {
   width: 854px;
 }
 
-.start-screen img {
+.win-screen, .lose-screen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 70%;
+  width: 85%;
+}
+
+.start-screen img, .win-screen img, .lose-screen img {
   width: 100%;
   height: 100%;
   vertical-align: middle;
@@ -60,41 +69,46 @@ canvas {
   display: block;
   border-radius: 8px;
   background-color: black;
+  image-rendering: optimizeSpeed; /* Ältere Browser */
+  image-rendering: -moz-crisp-edges; /* Firefox */
+  image-rendering: -webkit-optimize-contrast; /* Safari / Chrome */
+  image-rendering: pixelated; /* Moderne Browser */
+  -ms-interpolation-mode: nearest-neighbor; /* IE */
 }
 
 .play-buttons {
-    position: absolute;
-    width: 100%;
-    box-sizing: border-box;
-    display: none;
-    justify-content: space-between;
-    left: 0;
-    right: 0;
-    padding: 10px 25px;
-    bottom: 0;
+  position: absolute;
+  width: 100%;
+  box-sizing: border-box;
+  display: none;
+  justify-content: space-between;
+  left: 0;
+  right: 0;
+  padding: 10px 25px;
+  bottom: 0;
 }
 
 .play-buttons img {
-    width: 50px;
-    height: 50px;
-    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+  width: 50px;
+  height: 50px;
+  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
 }
 
 .action-buttons {
-    display: flex;
-    gap: 30px;
+  display: flex;
+  gap: 30px;
 }
 
 @media (pointer: coarse) {
-    .play-buttons {
-        display: flex !important;
-    }
+  .play-buttons {
+    display: flex !important;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .mobile-controls {
-        display: none !important;
-    }
+  .mobile-controls {
+    display: none !important;
+  }
 }
 
 @media only screen and (max-width: 854px) {
@@ -117,10 +131,10 @@ canvas {
 }
 
 @media (max-height: 320px) and (max-width: 480px) {
-    canvas,
+  canvas,
   .start-screen,
   .game {
-    width: 100vw;;
+    width: 100vw;
   }
 }
 
@@ -196,7 +210,8 @@ canvas {
   height: 40px;
 }
 
-.button-item, .button-item:active {
+.button-item,
+.button-item:active {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -206,7 +221,7 @@ canvas {
 }
 
 .button-item.opacity-low {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
 .button-item:hover {
@@ -254,8 +269,15 @@ canvas {
 
 @media (max-width: 854px) or (max-height: 480px) {
   .play-buttons img {
-    width: 40px;
-    height: 40px;
+    width: 3em;
+    height: 3em;
   }
 }
 
+#btnPause {
+  content: url(./assets/icons/pause.png);
+}
+
+#btnPause.gamePaused {
+  content: url(./assets/icons/play.png);
+}
