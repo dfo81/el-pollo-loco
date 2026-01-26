@@ -39,12 +39,31 @@ h1 {
   outline: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-.start-screen  {
+.start-screen, .lyrics  {
   position: absolute;
   top: 0;
   left: 0;
   height: 480px;
   width: 854px;
+  display: flex;
+  justify-content: center;
+}
+
+.lyrics {
+  box-sizing: border-box;
+  background-color: #bd5633;
+  color: #ffa42f;
+  padding-top: 80px;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+}
+
+table {
+  width: 60%;
+}
+
+th {
+  font-size: 40px;
 }
 
 .win-screen, .lose-screen {
@@ -114,15 +133,18 @@ canvas {
 @media only screen and (max-width: 854px) {
   canvas,
   .start-screen,
+  .lyrics,
   .game {
     width: 100vw;
     height: auto;
+    aspect-ratio: 854 / 480;
   }
 }
 
 @media only screen and (max-height: 480px) {
   canvas,
   .start-screen,
+  .lyrics,
   .game {
     height: 100vh;
     width: auto;
@@ -133,6 +155,7 @@ canvas {
 @media (max-height: 320px) and (max-width: 480px) {
   canvas,
   .start-screen,
+  .lyrics,
   .game {
     width: 100vw;
   }

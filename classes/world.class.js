@@ -283,19 +283,25 @@ class World {
   this.level.enemies.forEach(enemy => {
       enemy.speed = 0; 
   });
-  sounds.BOSS_MUSIC.stop();
-  sounds.WIN.play();
+  stopSounds();
+  if (sounds.WIN) sounds.WIN.play();
   document.getElementById('winScreen').classList.remove('d-none');
+  document.getElementById('menu').classList.remove('d-none');
 }
 
   executeLoseSequence() {
   if (gamePaused) return; 
   gamePaused = true;
+  stopSounds();
+  if (sounds.LOSE) sounds.LOSE.play();
+  document.getElementById('menu').classList.remove('d-none');
+  document.getElementById('loseScreen').classList.remove('d-none');
+}
+}
+
+function stopSounds() {
   sounds.BOSS_MUSIC.stop();
   sounds.MUSIC.stop();
   sounds.SCARED_BOSS.stop();
-  if (sounds.LOSE) sounds.LOSE.play();
-  
-  document.getElementById('loseScreen').classList.remove('d-none');
-}
+  sounds.WALK.stop(); 
 }

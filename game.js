@@ -14,7 +14,7 @@ window.addEventListener("keydown", (e) => {
     if (e.code === "ArrowLeft") keyboard.LEFT = true;
     if (e.code === "ArrowRight") keyboard.RIGHT = true;
     if (e.code === "KeyF") toggleFullscreen();
-    if (e.code === "KeyS") toggleMusic();
+    if (e.code === "KeyM") toggleMusic();
     if (e.code === "KeyP") togglePause();
     if (e.code === "KeyL") showLyrics();
   }
@@ -48,7 +48,7 @@ function startGame() {
   world = new World(canvas, keyboard, sounds);
   world.startGame(); // Startet Pepe und Gegner-Animationen
   
-  document.getElementsByClassName("menu")[0].classList.add("d-none");
+  document.getElementById("menu").classList.add("d-none");
   gamePaused = false;
   
   if (music) {
@@ -147,7 +147,8 @@ function checkOrientation() {
 }
 
 function showLyrics() {
-  document.getElementById("lyricsScreen").classList.remove("d-none");
+  document.getElementById("lyrics").classList.remove("d-none");
+  document.getElementById('startScreen').classList.add('d-none');
 }
 
 function togglePause() {
