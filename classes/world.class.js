@@ -1,28 +1,60 @@
+/**
+ * The World class represents the main game engine, handling rendering, 
+ * collisions, and game state transitions.
+ */
 class World {
+  /** @type {Character} */
   character = new Character();
+  /** @type {Level} */
   level = level1;
+  /** @type {HTMLCanvasElement} */
   canvas;
+  /** @type {CanvasRenderingContext2D} */
   ctx;
+  /** @type {Keys} */
   keyboard;
+  /** @type {number} - Horizontal camera offset. */
   camera_x = 0;
+  
+  /** @type {StatusBar} */
   statusBar = new StatusBar();
+  /** @type {BossStatusBar} */
   bossStatusBar = new BossStatusBar();
-  bossFirstContact = false;
-  scaredSoundPlayed = false;
+  /** @type {BottleStatusBar} */
   bottleStatusBar = new BottleStatusBar();
+  /** @type {CoinsStatusBar} */
   coinsStatusBar = new CoinsStatusBar();
+  
+  /** @type {boolean} */
+  bossFirstContact = false;
+  /** @type {boolean} */
+  scaredSoundPlayed = false;
+  /** @type {boolean} */
+  gameWon = false;
+  
+  /** @type {ThrowableObject[]} */
   throwableObjects = [];
+  /** @type {number} - Timestamp of the last thrown bottle. */
   lastThrow = 0;
 
+  /**
+   * Initializes the world, sets up the canvas context and starts the game loops.
+   * @param {HTMLCanvasElement} canvas - The game canvas.
+   * @param {Keys} keyboard - The input controller.
+   */
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
+    this.collisionManager = new CollisionManager(this);
     this.draw();
     this.setWorld();
     this.run();
   }
 
+  /**
+   * Provides references of the world to entities for cross-communication.
+   */
   setWorld() {
     this.character.world = this;
     this.level.enemies.forEach((enemy) => {
@@ -30,22 +62,21 @@ class World {
     });
   }
 
+  /**
+   * Main logic loop running at a fixed interval (approx. 60 FPS).
+   */
   run() {
-    addGameTask(
-      this,
-      () => {
-        this.checkCollision();
-        this.checkCoinCollisions();
-        this.checkThrowObject();
-        this.checkPickBottle();
-        this.bottleCollision();
-        this.checkMeetBoss();
-        this.checkGameOver();
-      },
-      15,
-    );
+    addGameTask(this, () => {
+      this.collisionManager.checkAll();
+      this.checkThrowObject();
+      this.checkMeetBoss();
+      this.checkGameOver();
+    }, 15);
   }
 
+  /**
+   * Starts animations for the character and all enemies in the level.
+   */
   startGame() {
     this.character.start();
     this.level.enemies.forEach((enemy) => {
@@ -53,6 +84,9 @@ class World {
     });
   }
 
+  /**
+   * Checks if the throw key is pressed and validates timing/bottle count.
+   */
   checkThrowObject() {
     let currentTime = new Date().getTime();
     let timeSinceLastThrow = currentTime - this.lastThrow;
@@ -67,149 +101,103 @@ class World {
     }
   }
 
+  /**
+   * Creates a ThrowableObject and updates the character's inventory.
+   * @param {number} currentTime - Timestamp of the throw action.
+   */
   executeThrow(currentTime) {
     let offsetX = this.character.otherDirection ? -10 : 75;
-    let bottle = new ThrowableObject(this.character.x + offsetX, this.character.y + 100, this.character.otherDirection);
+    let bottle = new ThrowableObject(
+      this.character.x + offsetX, 
+      this.character.y + 100, 
+      this.character.otherDirection
+    );
     this.throwableObjects.push(bottle);
     this.character.throwBottle();
     this.bottleStatusBar.setPercentage(this.character.bottleCount);
     this.lastThrow = currentTime;
   }
 
-  checkCollision() {
-    this.level.enemies.forEach((enemy) => {
-      if (this.character.isColliding(enemy)) {
-        if (enemy instanceof Boss) {
-          this.handleBossCollision();
-        } else {
-          this.handleChickenCollision(enemy);
-        }
-      }
-    });
-  }
-
-  handleBossCollision() {
-    if (!this.character.isHurt() && !this.character.isDead()) {
-      this.character.hit();
-      this.statusBar.setPercentage(this.character.energy);
-    }
-  }
-
-  handleChickenCollision(enemy) {
-    if (this.character.isAboveGround() && this.character.speedY <= 0 && !enemy.isDead) {
-      this.executeEnemyKill(enemy, true);
-    } else if (!enemy.isDead && !this.character.isAboveGround()) {
-      if (!this.character.isHurt() && !this.character.isDead()) {
-        this.character.hit();
-        this.statusBar.setPercentage(this.character.energy);
-      }
-    }
-  }
-
-  executeEnemyKill(enemy, shouldJump) {
-    enemy.isDead = true;
-    if (shouldJump) {
-      this.character.speedY = 12;
-    }
-    if (enemy instanceof Chicks) {
-      sounds.CHICK_DEAD.play();
-    } else {
-      sounds.DEAD.play();
-    }
-    setTimeout(() => {
-      let index = this.level.enemies.indexOf(enemy);
-      if (index > -1) {
-        this.level.enemies.splice(index, 1);
-      }
-    }, 500);
-  }
-
-  bottleCollision() {
-    this.throwableObjects.forEach((bottle) => {
-      this.level.enemies.forEach((enemy) => {
-        if (bottle.isColliding(enemy) && !bottle.hasSplashed) {
-          if (enemy instanceof Boss) {
-            bottle.splash();
-            enemy.hit();
-            this.bossStatusBar.setPercentage(enemy.energy);
-          } else if (!enemy.isDead) {
-            bottle.splash();
-            this.executeEnemyKill(enemy, false);
-          }
-        }
-      });
-    });
-  }
-
-  checkPickBottle() {
-    this.level.bottles.forEach((bottle, index) => {
-      if (this.character.isColliding(bottle)) {
-        if (this.character.bottleCount < 100) {
-          this.character.collectBottle();
-          this.level.bottles.splice(index, 1);
-          this.bottleStatusBar.setPercentage(this.character.bottleCount);
-          sounds.BOTTLE.play();
-        }
-      }
-    });
-  }
-
-  checkCoinCollisions() {
-    this.level.coins.forEach((coin, index) => {
-      if (this.character.isColliding(coin)) {
-        this.character.collectCoin();
-        sounds.COIN.play();
-        this.coinsStatusBar.setPercentage(this.character.coinsCount);
-        this.level.coins.splice(index, 1);
-      }
-    });
-  }
-
+  /**
+   * Main rendering loop. Handles layers in correct drawing order.
+   */
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    this.level.backgrounds.forEach((bg) => {
-      this.ctx.translate(this.camera_x * bg.speedModifier, 0);
-      this.addToMap(bg);
-      this.ctx.translate(-this.camera_x * bg.speedModifier, 0);
-    });
+    this.drawBackgroundLayers();
+    this.drawWorldObjects();
+    this.drawStatusBars();
+    this.drawCharacterLayer();
 
-    this.level.clouds.forEach((cloud) => {
-      let modifier = cloud.speedModifier || 0.5;
-      this.ctx.translate(this.camera_x * modifier, 0);
-      this.addToMap(cloud);
-      this.ctx.translate(-this.camera_x * modifier, 0);
-    });
+    requestAnimationFrame(() => this.draw());
+  }
 
+  /**
+   * Draws parallax backgrounds and clouds.
+   */
+  drawBackgroundLayers() {
+    this.level.backgrounds.forEach((bg) => this.drawWithModifier(bg, bg.speedModifier));
+    this.level.clouds.forEach((cloud) => this.drawWithModifier(cloud, cloud.speedModifier || 0.5));
+  }
+
+  /**
+   * Draws all entities that move with the camera (Enemies, Coins, Bottles).
+   */
+  drawWorldObjects() {
     this.ctx.translate(this.camera_x, 0);
     this.addObjectsToMap(this.level.coins);
     this.addObjectsToMap(this.level.bottles);
     this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.throwableObjects);
     this.ctx.translate(-this.camera_x, 0);
+  }
 
+  /**
+   * Draws fixed UI elements (Status Bars).
+   */
+  drawStatusBars() {
     this.addToMap(this.statusBar);
+    this.addToMap(this.bottleStatusBar);
+    this.addToMap(this.coinsStatusBar);
     if (this.bossFirstContact) {
       this.addToMap(this.bossStatusBar);
     }
-    this.addToMap(this.bottleStatusBar);
-    this.addToMap(this.coinsStatusBar);
+  }
 
+  /**
+   * Draws the character, affected by camera movement.
+   */
+  drawCharacterLayer() {
     this.ctx.translate(this.camera_x, 0);
     this.addToMap(this.character);
     this.ctx.translate(-this.camera_x, 0);
-
-    requestAnimationFrame(() => {
-      this.draw();
-    });
   }
 
+  /**
+   * Helper to draw objects with a specific speed modifier for parallax effects.
+   * @param {DrawableObject} obj 
+   * @param {number} modifier 
+   */
+  drawWithModifier(obj, modifier) {
+    this.ctx.translate(this.camera_x * modifier, 0);
+    this.addToMap(obj);
+    this.ctx.translate(-this.camera_x * modifier, 0);
+  }
+
+  /**
+   * Helper function to add multiple objects to the map.
+   * @param {DrawableObject[]} objects 
+   */
   addObjectsToMap(objects) {
     objects.forEach((object) => {
       this.addToMap(object);
     });
   }
 
+  /**
+   * Handles individual object drawing, including image flipping for direction.
+   * @param {MovableObject} mo 
+   */
   addToMap(mo) {
     if (mo.otherDirection) {
       this.flipImage(mo);
@@ -220,6 +208,10 @@ class World {
     }
   }
 
+  /**
+   * Mirrors the context for objects facing left.
+   * @param {MovableObject} mo 
+   */
   flipImage(mo) {
     this.ctx.save();
     this.ctx.translate(mo.width, 0);
@@ -227,35 +219,37 @@ class World {
     this.ctx.scale(-1, 1);
   }
 
+  /**
+   * Restores the context after drawing a mirrored object.
+   * @param {MovableObject} mo 
+   */
   flipImageBack(mo) {
     mo.x = mo.x * -1;
     this.ctx.restore();
   }
 
+  /**
+   * Monitors distance between character and boss to trigger the fight.
+   */
   checkMeetBoss() {
     if (gamePaused) return;
-
-    // Wir suchen den Boss im enemies-Array
     let boss = this.level.enemies.find((e) => e instanceof Boss);
-
     if (boss) {
-      // Distanz berechnen (Boss X minus Pepe X)
       let distance = boss.x - this.character.x;
-
-      if (distance < 600) {
+      if (distance < 720) {
         this.triggerBossFight();
       }
     }
   }
 
+  /**
+   * Transitions from level music to boss music.
+   */
   triggerBossFight() {
-    // 1. Sound abspielen (nur einmal triggern)
     if (!this.scaredSoundPlayed) {
       this.scaredSoundPlayed = true;
       sounds.SCARED_BOSS.play();
     }
-
-    // 2. Boss-Modus in der Welt aktivieren
     if (!this.bossFirstContact) {
       this.bossFirstContact = true;
       sounds.MUSIC.stop();
@@ -265,43 +259,56 @@ class World {
     }
   }
 
-  gameWon = false;
-
+  /**
+   * Checks if victory or defeat conditions are met.
+   */
   checkGameOver() {
     let boss = this.level.enemies.find((e) => e instanceof Boss);
     if (boss && boss.y > 200 && !this.gameWon) {
       this.executeWinSequence();
     }
     if (this.character.energy <= 0 && this.character.y > 350 && !this.gameWon) {
-    this.executeLoseSequence();
-  }
+      this.executeLoseSequence();
+    }
   }
 
+  /**
+   * Halts the game and shows the win screen.
+   */
   executeWinSequence() {
-  this.gameWon = true;
-  gamePaused = true;
-  this.level.enemies.forEach(enemy => {
+    this.gameWon = true;
+    gamePaused = true;
+    stopSounds();
+    this.level.enemies.forEach(enemy => {
       enemy.speed = 0; 
-  });
-  stopSounds();
-  if (sounds.WIN) sounds.WIN.play();
-  document.getElementById('winScreen').classList.remove('d-none');
-  document.getElementById('menu').classList.remove('d-none');
-}
+    });
+    if (sounds.WIN) sounds.WIN.play();
+    document.getElementById('winScreen').classList.remove('d-none');
+    document.getElementById('menu').classList.remove('d-none');
+  }
 
+  /**
+   * Halts the game and shows the lose screen.
+   */
   executeLoseSequence() {
-  if (gamePaused) return; 
-  gamePaused = true;
-  stopSounds();
-  if (sounds.LOSE) sounds.LOSE.play();
-  document.getElementById('menu').classList.remove('d-none');
-  document.getElementById('loseScreen').classList.remove('d-none');
-}
+    if (gamePaused) return; 
+    this.gameWon = false; 
+    gamePaused = true;
+    stopSounds();
+    if (sounds.LOSE) sounds.LOSE.play();
+    document.getElementById('menu').classList.remove('d-none');
+    document.getElementById('loseScreen').classList.remove('d-none');
+  }
 }
 
+/**
+ * Global helper function to stop all ongoing environmental sounds.
+ */
 function stopSounds() {
-  sounds.BOSS_MUSIC.stop();
-  sounds.MUSIC.stop();
-  sounds.SCARED_BOSS.stop();
-  sounds.WALK.stop(); 
+  if (sounds) {
+    sounds.BOSS_MUSIC.stop();
+    sounds.MUSIC.stop();
+    sounds.SCARED_BOSS.stop();
+    sounds.WALK.stop();
+  }
 }

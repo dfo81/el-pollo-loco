@@ -53,7 +53,7 @@ h1 {
   box-sizing: border-box;
   background-color: #bd5633;
   color: #ffa42f;
-  padding-top: 80px;
+  padding: 80px;
   text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   border-radius: 8px;
 }
@@ -269,7 +269,8 @@ canvas {
 }
 
 .game:fullscreen canvas,
-.game:fullscreen .start-screen {
+.game:fullscreen .start-screen,
+.game:fullscreen .lyrics{
   width: 100vw !important;
   height: 100vh !important;
   object-fit: contain;
