@@ -3,6 +3,11 @@
   src: url(./assets/font/Zabars.ttf);
 }
 
+@font-face {
+  font-family: eastwood;
+  src: url(./assets/font/Eastwood.ttf);
+}
+
 body {
   font-family: "zabars", sans-serif;
   position: relative;
@@ -56,6 +61,7 @@ h1 {
   padding: 80px;
   text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   border-radius: 8px;
+  font-family: eastwood;
 }
 
 table {
@@ -211,6 +217,9 @@ canvas {
   #rotateScreen {
     display: flex !important;
   }
+  .menu, .action-buttons {
+    display: none !important;
+  }
 }
 
 .d-none {
@@ -223,7 +232,7 @@ canvas {
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  width: 360px;
+  width: 400px;
   display: flex;
   justify-content: space-between;
 }
@@ -304,4 +313,15 @@ canvas {
 
 #btnPause.gamePaused {
   content: url(./assets/icons/play.png);
+}
+
+a {
+  text-decoration: none;
+  color: #ffa42f;
+  transition: 250ms ease-in-out;
+}
+
+a:hover {
+  text-shadow: 0 5px 5px #bd5633;
+  color: white;
 }

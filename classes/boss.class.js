@@ -9,7 +9,7 @@ class Boss extends MovableObject {
   height = 418;
   speed = 5;
   energy = 100;
-  offset = { top: 150, bottom: 100, left: 80, right: 80 };
+  offset = { top: 150, bottom: 100, left: 30, right: 30 };
   animationTick = 0;
   stateTimer = 0;
   currentMode = "NONE";

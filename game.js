@@ -25,7 +25,7 @@ window.addEventListener("keydown", (e) => {
     if (e.code === "ArrowLeft") keyboard.LEFT = true;
     if (e.code === "ArrowRight") keyboard.RIGHT = true;
     if (e.code === "KeyF") toggleFullscreen();
-    if (e.code === "KeyM") toggleMusic();
+    if (e.code === "KeyS") toggleMusic();
     if (e.code === "KeyP") togglePause();
     if (e.code === "KeyL") showLyrics();
   }
