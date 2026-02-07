@@ -36,6 +36,7 @@ class Coins extends MovableObject {
     this.loadImages(this.IMAGES_COINS);
     this.x = x;
     this.y = y;
+    this.currentImage = Math.floor(Math.random() * this.IMAGES_COINS.length);
     this.animate();
   }
 
@@ -43,9 +44,10 @@ class Coins extends MovableObject {
    * Starts the coin's spinning animation.
    */
   animate() {
-    addGameTask(this, () => {
-      this.playAnimation(this.IMAGES_COINS);
-    }, 500);
+
+      addGameTask(this, () => {
+        this.playAnimation(this.IMAGES_COINS);
+      }, 200); // 200ms Intervall für eine flüssige Drehung
   }
 }
 

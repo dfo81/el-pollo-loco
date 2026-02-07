@@ -15,16 +15,12 @@ class World {
   keyboard;
   /** @type {number} - Horizontal camera offset. */
   camera_x = 0;
-  
-  /** @type {StatusBar} */
-  statusBar = new StatusBar();
-  /** @type {BossStatusBar} */
-  bossStatusBar = new BossStatusBar();
-  /** @type {BottleStatusBar} */
-  bottleStatusBar = new BottleStatusBar();
-  /** @type {CoinsStatusBar} */
-  coinsStatusBar = new CoinsStatusBar();
-  
+
+  statusBar;
+  bossStatusBar;
+  bottleStatusBar;
+  coinsStatusBar;
+    
   /** @type {boolean} */
   bossFirstContact = false;
   /** @type {boolean} */
@@ -46,6 +42,14 @@ class World {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
+    /** @type {StatusBar} */
+  this.statusBar = new StatusBar('health', 10, 0, 100);
+  /** @type {BossStatusBar} */
+  this.bossStatusBar = new StatusBar('boss', 690, 5, 100);
+  /** @type {BottleStatusBar} */
+  this.bottleStatusBar = new StatusBar('bottle', 10, 30, 0);
+  /** @type {CoinsStatusBar} */
+  this.coinsStatusBar = new StatusBar('coin', 10, 60, 0);
     this.collisionManager = new CollisionManager(this);
     this.draw();
     this.setWorld();
@@ -81,6 +85,9 @@ class World {
     this.character.start();
     this.level.enemies.forEach((enemy) => {
       enemy.animate();
+    });
+    this.level.coins.forEach((coin) => {
+      coin.animate();
     });
   }
 

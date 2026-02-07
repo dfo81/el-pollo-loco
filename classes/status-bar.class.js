@@ -4,22 +4,18 @@
  */
 class StatusBar extends DrawableObject {
   /** @type {number} */
-  x = 10;
-  /** @type {number} */
-  y = 0;
-  /** @type {number} */
   height = 40;
   /** @type {number} */
   width = 150;
   /** @type {number} */
-  percentage = 100;
+  percentage = 0;
 
   /**
    * Array of image paths representing health levels from 0% to 100%.
    * @type {string[]}
    * @readonly
    */
-  IMAGES = [
+  static HEALTH_IMAGES = [
     "assets/img/7_statusbars/1_statusbar/2_statusbar_health/blue/0.png",
     "assets/img/7_statusbars/1_statusbar/2_statusbar_health/blue/20.png",
     "assets/img/7_statusbars/1_statusbar/2_statusbar_health/blue/40.png",
@@ -29,14 +25,69 @@ class StatusBar extends DrawableObject {
   ];
 
   /**
-   * Creates an instance of StatusBar.
-   * Loads the health bar images and initializes health at 100%.
+   * Array of image paths representing different health levels (0% to 100%).
+   * @type {string[]}
+   * @readonly
    */
-  constructor() {
+  static BOSS_IMAGES = [
+    "assets/img/7_statusbars/2_statusbar_endboss/orange/orange0.png",
+    "assets/img/7_statusbars/2_statusbar_endboss/orange/orange20.png",
+    "assets/img/7_statusbars/2_statusbar_endboss/orange/orange40.png",
+    "assets/img/7_statusbars/2_statusbar_endboss/orange/orange60.png",
+    "assets/img/7_statusbars/2_statusbar_endboss/orange/orange80.png",
+    "assets/img/7_statusbars/2_statusbar_endboss/orange/orange100.png"
+  ];
+
+  /**
+   * Array of image paths representing bottle fill levels from 0% to 100%.
+   * @type {string[]}
+   * @readonly
+   */
+  static BOTTLE_IMAGES = [
+    "assets/img/7_statusbars/1_statusbar/3_statusbar_bottle/green/0.png",
+    "assets/img/7_statusbars/1_statusbar/3_statusbar_bottle/green/20.png",
+    "assets/img/7_statusbars/1_statusbar/3_statusbar_bottle/green/40.png",
+    "assets/img/7_statusbars/1_statusbar/3_statusbar_bottle/green/60.png",
+    "assets/img/7_statusbars/1_statusbar/3_statusbar_bottle/green/80.png",
+    "assets/img/7_statusbars/1_statusbar/3_statusbar_bottle/green/100.png",
+  ];
+
+  /**
+   * Array of image paths representing coin collection levels (0% to 100%).
+   * @type {string[]}
+   * @readonly
+   */
+  static COINS_IMAGES = [
+    "assets/img/7_statusbars/1_statusbar/1_statusbar_coin/orange/0.png",
+    "assets/img/7_statusbars/1_statusbar/1_statusbar_coin/orange/20.png",
+    "assets/img/7_statusbars/1_statusbar/1_statusbar_coin/orange/40.png",
+    "assets/img/7_statusbars/1_statusbar/1_statusbar_coin/orange/60.png",
+    "assets/img/7_statusbars/1_statusbar/1_statusbar_coin/orange/80.png",
+    "assets/img/7_statusbars/1_statusbar/1_statusbar_coin/orange/100.png"
+  ];
+
+  /**
+   * @param {string} type - 'health', 'coin', 'bottle' or 'boss'
+   * @param {number} x 
+   * @param {number} y 
+   * @param {number} percentage 
+   */
+  constructor(type, x, y, percentage) {
     super();
+    this.x = x;
+    this.y = y;
+    this.IMAGES = this.getImagesByType(type);
     this.loadImages(this.IMAGES);
-    this.setPercentage(100);
+    this.setPercentage(percentage);
   }
+
+  getImagesByType(type) {
+        if (type === 'health') return StatusBar.HEALTH_IMAGES;
+        if (type === 'coin') return StatusBar.COINS_IMAGES;
+        if (type === 'bottle') return StatusBar.BOTTLE_IMAGES;
+        if (type === 'boss') return StatusBar.BOSS_IMAGES;
+        return [];
+    }
 
   /**
    * Updates the health percentage and the displayed image.
