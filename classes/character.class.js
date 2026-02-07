@@ -13,6 +13,7 @@ class Character extends MovableObject {
   coinsCount = 0;
   bottleCount = 0;
   deathTimer = 0;
+  animationFrameIndex = 0;
 
   /** @type {string[]} */
   IMAGES_WALKING = ["assets/img/2_character_pepe/2_walk/W-21.png", "assets/img/2_character_pepe/2_walk/W-22.png", "assets/img/2_character_pepe/2_walk/W-23.png", "assets/img/2_character_pepe/2_walk/W-24.png", "assets/img/2_character_pepe/2_walk/W-25.png", "assets/img/2_character_pepe/2_walk/W-26.png"];
@@ -97,9 +98,9 @@ class Character extends MovableObject {
     } else if (this.isHurt()) {
       this.playAnimation(this.IMAGES_HURT, 5);
     } else if (this.isAboveGround()) {
-      this.playAnimation(this.IMAGES_JUMPING, 10);
+      this.handleJumpAnimation(); // Neue Methode für feineres Springen
     } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-      this.playAnimation(this.IMAGES_WALKING, 15);
+      this.playAnimation(this.IMAGES_WALKING, 12);
     } else {
       this.playIdleAnimations();
     }
@@ -202,18 +203,50 @@ class Character extends MovableObject {
            !this.isDead();
   }
 
-  /**
+/**
    * Processes jump input and resets necessary state flags.
    */
   handleJumpInput() {
-    if (this.world.keyboard.JUMP_ONCE) {
-      if (!this.isAboveGround() && !this.isDead()) {
-        this.jump();
+  if (this.world.keyboard.JUMP_ONCE && !this.isAboveGround() && !this.isDead()) {
+    this.currentImage = 0; // Starte Animation bei J-31 (Vorbereitung)
+    this.lastAnimationTime = 0;
+    
+    // Wir verzögern den physikalischen Sprung um ca. 150ms,
+    // damit die ersten 3 Bilder am Boden abgespielt werden können.
+    setTimeout(() => {
+      this.jump();
+    }, 150);
+
+    this.world.keyboard.JUMP_ONCE = false;
+    this.resetIdleTimer();
+  }
+}
+
+  /**
+   * Refined jump animation: plays sequence once while rising, 
+   * then holds the last frame.
+   */
+handleJumpAnimation() {
+  if (this.isAboveGround() || this.currentImage < 3) {
+    // Phase 1 & 2: Takeoff & Aufsteigen (Bilder 0 bis 5)
+    if (this.speedY > 0 || this.currentImage < 6) {
+      if (this.currentImage < 6) {
+        this.playAnimation(this.IMAGES_JUMPING, 15); // Zügig durch die ersten 6 Bilder
+      } else {
+        // Halte Bild 6 (den höchsten Punkt), bis er wieder fällt
+        this.img = this.imageCache[this.IMAGES_JUMPING[5]];
       }
-      this.world.keyboard.JUMP_ONCE = false;
-      this.resetIdleTimer();
+    } 
+    // Phase 3: Fallen & Landung (Bilder 6 bis 8)
+    else {
+      this.playAnimation(this.IMAGES_JUMPING.slice(6), 10);
+      // Wenn wir beim allerletzten Bild angekommen sind, halten wir es fest
+      if (this.currentImage >= this.IMAGES_JUMPING.length) {
+        this.img = this.imageCache[this.IMAGES_JUMPING[8]];
+      }
     }
   }
+}
 
   /**
    * Manages walking sound triggers based on movement and game state.

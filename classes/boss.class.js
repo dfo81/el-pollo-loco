@@ -1,5 +1,5 @@
 /**
- * Represents the final boss enemy with state-driven behavior and animations.
+ * Represents the final boss enemy with state-driven behavior.
  * @extends MovableObject
  */
 class Boss extends MovableObject {
@@ -10,125 +10,143 @@ class Boss extends MovableObject {
   speed = 5;
   energy = 100;
   offset = { top: 150, bottom: 100, left: 30, right: 30 };
-  animationTick = 0;
   stateTimer = 0;
   currentMode = "NONE";
+  groundLevel = 40;
+  isRetreating = false;
 
-  /** @type {string[]} */
   IMAGES_BOSS_WALK = ["assets/img/4_enemie_boss_chicken/1_walk/G1.png", "assets/img/4_enemie_boss_chicken/1_walk/G2.png", "assets/img/4_enemie_boss_chicken/1_walk/G3.png", "assets/img/4_enemie_boss_chicken/1_walk/G4.png"];
-  /** @type {string[]} */
   IMAGES_BOSS_ALERT = ["assets/img/4_enemie_boss_chicken/2_alert/G5.png", "assets/img/4_enemie_boss_chicken/2_alert/G6.png", "assets/img/4_enemie_boss_chicken/2_alert/G7.png", "assets/img/4_enemie_boss_chicken/2_alert/G8.png", "assets/img/4_enemie_boss_chicken/2_alert/G9.png", "assets/img/4_enemie_boss_chicken/2_alert/G10.png", "assets/img/4_enemie_boss_chicken/2_alert/G11.png", "assets/img/4_enemie_boss_chicken/2_alert/G12.png"];
-  /** @type {string[]} */
   IMAGES_BOSS_ATTACK = ["assets/img/4_enemie_boss_chicken/3_attack/G13.png", "assets/img/4_enemie_boss_chicken/3_attack/G14.png", "assets/img/4_enemie_boss_chicken/3_attack/G15.png", "assets/img/4_enemie_boss_chicken/3_attack/G16.png", "assets/img/4_enemie_boss_chicken/3_attack/G17.png", "assets/img/4_enemie_boss_chicken/3_attack/G18.png", "assets/img/4_enemie_boss_chicken/3_attack/G19.png", "assets/img/4_enemie_boss_chicken/3_attack/G20.png"];
-  /** @type {string[]} */
   IMAGES_BOSS_HURT = ["assets/img/4_enemie_boss_chicken/4_hurt/G21.png", "assets/img/4_enemie_boss_chicken/4_hurt/G22.png", "assets/img/4_enemie_boss_chicken/4_hurt/G23.png"];
-  /** @type {string[]} */
   IMAGES_BOSS_DEAD = ["assets/img/4_enemie_boss_chicken/5_dead/G24.png", "assets/img/4_enemie_boss_chicken/5_dead/G25.png", "assets/img/4_enemie_boss_chicken/5_dead/G26.png"];
 
+  /**
+   * Initializes boss assets and starts behavior tasks.
+   */
   constructor() {
-    super().loadImage(this.IMAGES_BOSS_ALERT[0]);
+    super();
+    this.loadBossImages();
+    this.loadImage(this.IMAGES_BOSS_ALERT[0]);
+    this.applyGravity();
+    this.animate();
+  }
+
+  /**
+   * Loads all animation sequences for the boss.
+   */
+  loadBossImages() {
     this.loadImages(this.IMAGES_BOSS_WALK);
     this.loadImages(this.IMAGES_BOSS_ALERT);
     this.loadImages(this.IMAGES_BOSS_ATTACK);
     this.loadImages(this.IMAGES_BOSS_HURT);
     this.loadImages(this.IMAGES_BOSS_DEAD);
-    this.animate();
   }
 
   /**
-   * Main animation loop.
+   * Starts the main animation and behavior loop.
    */
   animate() {
     addGameTask(this, () => {
-      if (this.isDead()) return this.playDeadAnimation();
-      if (this.isHurt()) return this.handleAnimation(this.IMAGES_BOSS_HURT, 200);
+      if (this.isDead()) return this.playDeadSequence();
+      if (this.isHurt()) return this.playAnimation(this.IMAGES_BOSS_HURT, 25);
       this.handleNormalBehavior();
-    }, 100);
+    }, 20);
   }
 
   /**
-   * Orchestrates the boss behavior states based on the state timer.
+   * Orchestrates behavior based on character distance and state.
    */
   handleNormalBehavior() {
-    if (!this.world?.bossFirstContact) return this.handleAnimation(this.IMAGES_BOSS_ALERT, 200);
-    this.stateTimer += 100;
-    if (this.stateTimer < 1000) {
-      this.updateMode('ALERT');
-      this.handleAnimation(this.IMAGES_BOSS_ALERT, 200);
-    } else if (this.stateTimer < 4000) {
-      this.executeWalkPhase();
-    } else if (this.stateTimer < 6000) {
+    if (!this.world?.bossFirstContact) return this.playAnimation(this.IMAGES_BOSS_ALERT, 10);
+    if (this.isRetreating) return this.executeRetreat();
+    let dist = this.x - this.world.character.x;
+    if (dist <= 200 && dist > 0 && this.currentMode !== 'ATTACK') {
+      this.stateTimer = 4000;
       this.executeAttackPhase();
     } else {
-      this.stateTimer = 1000;
+      this.runStateTimer();
     }
   }
 
   /**
-   * Moves the boss left if Pepe hasn't been reached yet.
+   * Processes the walk phase logic and movement.
    */
   executeWalkPhase() {
     this.updateMode('WALK');
-    if (this.isToTheRightOfCharacter()) {
-      this.moveLeft();
-    }
-    this.handleAnimation(this.IMAGES_BOSS_WALK, 200);
+    let dist = this.x - this.world.character.x;
+    if (dist > 150) this.moveLeft();
+    else if (dist < 120) this.x += 2;
+    this.playAnimation(this.IMAGES_BOSS_WALK, 10);
   }
 
   /**
-   * Executes a faster move/jump towards the player.
+   * Handles attack movement and collision detection.
    */
   executeAttackPhase() {
-    if (this.currentMode !== 'ATTACK') {
-      this.updateMode('ATTACK');
-      this.speedY = 50;
+    this.updateMode('ATTACK');
+    this.x -= 18;
+    this.playAnimation(this.IMAGES_BOSS_ATTACK, 20);
+    if (this.isColliding(this.world.character)) {
+      this.world.character.hit();
+      this.isRetreating = true;
     }
-    if (this.isToTheRightOfCharacter()) {
-      this.x -= 20;
-    }
-    this.handleAnimation(this.IMAGES_BOSS_ATTACK, 50);
   }
 
   /**
-   * Checks if the boss is still to the right of Pepe.
-   * @returns {boolean}
+   * Manages the retreat movement after a collision.
    */
-  isToTheRightOfCharacter() {
-    return this.x > this.world.character.x + 20;
-  }
-
-  /**
-   * Throttles animation playback.
-   * @param {string[]} images 
-   * @param {number} delay 
-   */
-  handleAnimation(images, delay) {
-    this.animationTick += 100;
-    if (this.animationTick >= delay) {
-      this.playAnimation(images);
-      this.animationTick = 0;
+  executeRetreat() {
+    this.updateMode('WALK');
+    this.x += 15;
+    if (!this.isAboveGround()) this.speedY = 15;
+    this.playAnimation(this.IMAGES_BOSS_WALK, 15);
+    if (this.x - this.world.character.x > 350) {
+      this.isRetreating = false;
+      this.stateTimer = 0;
     }
   }
 
   /**
-   * Switches behavior mode.
-   * @param {string} nextMode 
+   * Switches the boss mode and resets animation index.
+   * @param {string} nextMode - The mode to switch to.
    */
   updateMode(nextMode) {
     if (this.currentMode !== nextMode) {
-      this.imgIndex = 0;
-      this.animationTick = 0;
+      this.currentImage = 0;
       this.currentMode = nextMode;
     }
   }
 
   /**
-   * Death sequence.
+   * Handles the death animation and falling sequence.
    */
-  playDeadAnimation() {
+  playDeadSequence() {
     sounds.SCARED_BOSS.stop();
     sounds.BOSS_MUSIC.stop();
-    this.handleAnimation(this.IMAGES_BOSS_DEAD, 500);
-    this.y += 15;
+    if (this.currentImage < this.IMAGES_BOSS_DEAD.length) {
+      this.playAnimation(this.IMAGES_BOSS_DEAD, 5);
+    } else {
+      this.y += 20;
+      let i = this.IMAGES_BOSS_DEAD.length - 1;
+      this.img = this.imageCache[this.IMAGES_BOSS_DEAD[i]];
+    }
+  }
+
+  /**
+   * Cycles through behavior states based on a timer.
+   */
+  runStateTimer() {
+    this.stateTimer += 20;
+    if (this.stateTimer < 1000) {
+      this.updateMode('ALERT');
+      this.playAnimation(this.IMAGES_BOSS_ALERT, 10);
+    } else if (this.stateTimer < 4000) {
+      this.executeWalkPhase();
+    } else if (this.stateTimer < 7000) {
+      this.executeAttackPhase();
+    } else {
+      this.stateTimer = 1000;
+    }
   }
 }

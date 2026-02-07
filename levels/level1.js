@@ -16,26 +16,29 @@ function initLevel() {
     createBottleLevel(13)
   );
 }
+
 /**
- * Generates an array of enemies for a level, including one Boss and a randomized mix 
- * of standard chickens and chicks.
- * @param {number} count - The number of standard enemies to spawn.
- * @returns {MovableObject[]} An array of enemy instances.
+ * Generates enemies including a Boss and a mix of chickens and chicks.
+ * @param {number} count - Total standard enemies.
+ * @returns {MovableObject[]} Array of enemy instances.
  */
 function createEnemyLevel(count) {
-  /** @type {MovableObject[]} */
   const enemies = [new Boss()];
-
   for (let i = 0; i < count; i++) {
-    // Calculates a base position plus a random offset to prevent overlapping
     const x = 800 + (i * 200) + (Math.random() * 200);
-    
-    // 50/50 chance to spawn a normal Chicken or a jumping Chick
-    if (Math.random() > 0.5) {
-      enemies.push(new Chicken(x));
-    } else {
-      enemies.push(new Chicks(x));
-    }
+    enemies.push(getRandomEnemy(x));
   }
   return enemies;
+}
+
+/**
+ * Returns either a Chicken or a Chicks instance based on probability.
+ * @param {number} x - Horizontal position.
+ * @returns {MovableObject} Randomized enemy.
+ */
+function getRandomEnemy(x) {
+  if (Math.random() > 0.5) {
+    return new Chicken(x);
+  }
+  return new Chicks(x);
 }

@@ -120,20 +120,22 @@ class MovableObject extends DrawableObject {
   /**
    * Cycles through an array of images to create an animation.
    * @param {string[]} images - Array of image paths.
-   * @param {number} fps - Desired frames per second.
+   * @param {number} fps - Desired frames per second (e.g., 10 for normal, 2 for slow).
    */
-  playAnimation(images, fps) {
-    let now = Date.now();
-    let frameDuration = 1000 / fps;
-    if (now - this.lastAnimationTime < frameDuration) {
-      return;
-    }
-    this.lastAnimationTime = now;
-    let i = this.currentImage % images.length;
-    let path = images[i];
-    this.img = this.imageCache[path];
-    this.currentImage++;
+  playAnimation(images, fps = 10) {
+  let now = Date.now();
+  let frameDuration = 1000 / fps;
+  if (now - this.lastAnimationTime < frameDuration) {
+    return;
   }
+  this.lastAnimationTime = now;
+  
+  // Wichtig: Wir rechnen den Index hier aus
+  let i = this.currentImage % images.length;
+  let path = images[i];
+  this.img = this.imageCache[path];
+  this.currentImage++;
+}
 
   /**
    * Triggers a jump if the object is on the ground.

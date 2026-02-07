@@ -3,15 +3,10 @@
  * @extends MovableObject
  */
 class Background extends MovableObject {
-  /** @type {number} */
   x = 0;
-  /** @type {number} */
   y = 0;
-  /** @type {number} */
   height = 480;
-  /** @type {number} */
   width = 720;
-  /** @type {number} */
   speedModifier;
 
   /**
@@ -29,36 +24,53 @@ class Background extends MovableObject {
 }
 
 /**
- * Generates an array of background layers for a level based on the specified length.
- * Implements a parallax effect with multiple layers and alternating textures.
- * * @param {number} levelLengthInScreens - How many screen-widths the level should span.
- * @returns {Background[]} An array of Background objects.
+ * Returns the configuration for the parallax background layers.
+ * @returns {Array<{path: string, speed: number, altPath?: string}>}
  */
-function createBackgroundLevel(levelLengthInScreens) {
-  const backgroundLayers = [];
-  const screenWidth = 719; // Slightly overlapped to prevent gaps
-
-  /** @type {Array<{path: string, speed: number, altPath?: string}>} */
-  const layerConfigs = [
+function getLayerConfigs() {
+  return [
     { path: "air.png", speed: 0.4 },
     { path: "3_third_layer/1.png", speed: 0.5, altPath: "3_third_layer/2.png" },
     { path: "2_second_layer/1.png", speed: 0.75, altPath: "2_second_layer/2.png" },
     { path: "1_first_layer/1.png", speed: 1.0, altPath: "1_first_layer/2.png" },
   ];
+}
 
+/**
+ * Resolves the image path based on the layer configuration and index.
+ * @param {Object} config - The layer configuration object.
+ * @param {number} index - The current screen index.
+ * @returns {string} The full asset path.
+ */
+function resolveLayerPath(config, index) {
+  const isEven = index % 2 === 0;
+  const fileName = (isEven || !config.altPath) ? config.path : config.altPath;
+  return `assets/img/5_background/layers/${fileName}`;
+}
+
+/**
+ * Adds all background layers for a specific screen offset to the array.
+ * @param {Background[]} layers - The array to push layers into.
+ * @param {number} xOffset - The horizontal position for this screen.
+ * @param {number} index - The current screen index.
+ */
+function addLayersForScreen(layers, xOffset, index) {
+  getLayerConfigs().forEach((config) => {
+    const path = resolveLayerPath(config, index);
+    layers.push(new Background(path, xOffset, config.speed));
+  });
+}
+
+/**
+ * Generates an array of background layers for a level.
+ * @param {number} levelLengthInScreens - Number of screen-widths the level spans.
+ * @returns {Background[]} Array of Background objects.
+ */
+function createBackgroundLevel(levelLengthInScreens) {
+  const backgroundLayers = [];
+  const screenWidth = 719;
   for (let i = 0; i < levelLengthInScreens; i++) {
-    const xOffset = i * screenWidth;
-    const isEven = i % 2 === 0;
-
-    layerConfigs.forEach((config) => {
-      const fileName = (isEven || !config.altPath) ? config.path : config.altPath;
-      const fullPath = `assets/img/5_background/layers/${fileName}`;
-
-      backgroundLayers.push(
-        new Background(fullPath, xOffset, config.speed)
-      );
-    });
+    addLayersForScreen(backgroundLayers, i * screenWidth, i);
   }
-
   return backgroundLayers;
 }
