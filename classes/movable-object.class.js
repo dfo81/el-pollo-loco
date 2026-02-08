@@ -17,9 +17,9 @@ class MovableObject extends DrawableObject {
   lastAnimationTime = 0;
   /** @type {number} - Current health points. */
   energy = 100;
-  
+
   /** * Boundaries used for fine-tuning collision detection.
-   * @type {{top: number, bottom: number, left: number, right: number}} 
+   * @type {{top: number, bottom: number, left: number, right: number}}
    */
   offset = {
     top: 0,
@@ -32,17 +32,21 @@ class MovableObject extends DrawableObject {
    * Applies constant downward force to the object if it is not on the ground.
    */
   applyGravity() {
-    addGameTask(this, () => {
-      if (this.isAboveGround() || this.speedY > 0 || this.energy <= 0) {
-        this.y -= this.speedY;
-        this.speedY -= this.acceleration;
-      } else {
-        if (!(this instanceof ThrowableObject)) {
-          this.y = this.groundLevel;
-          this.speedY = 0;
+    addGameTask(
+      this,
+      () => {
+        if (this.isAboveGround() || this.speedY > 0 || this.energy <= 0) {
+          this.y -= this.speedY;
+          this.speedY -= this.acceleration;
+        } else {
+          if (!(this instanceof ThrowableObject)) {
+            this.y = this.groundLevel;
+            this.speedY = 0;
+          }
         }
-      }
-    }, 15);
+      },
+      15,
+    );
   }
 
   /**
@@ -109,13 +113,17 @@ class MovableObject extends DrawableObject {
 
   /** Moves the object to the left based on its speed. */
   moveLeft() {
-    this.x -= this.speed;
+    if (!world.gameWon) {
+      this.x -= this.speed;      
   }
+}
 
   /** Moves the object to the right based on its speed. */
   moveRight() {
+    if (!world.gameWon) {
     this.x += this.speed;
   }
+}
 
   /**
    * Cycles through an array of images to create an animation.
@@ -123,18 +131,18 @@ class MovableObject extends DrawableObject {
    * @param {number} fps - Desired frames per second (e.g., 10 for normal, 2 for slow).
    */
   playAnimation(images, fps = 10) {
-  let now = Date.now();
-  let frameDuration = 1000 / fps;
-  if (now - this.lastAnimationTime < frameDuration) {
-    return;
+    if (!world.gameWon) {
+    let now = Date.now();
+    let frameDuration = 1000 / fps;
+    if (now - this.lastAnimationTime < frameDuration) {
+      return;
+    }
+    this.lastAnimationTime = now;
+    let i = this.currentImage % images.length;
+    let path = images[i];
+    this.img = this.imageCache[path];
+    this.currentImage++;
   }
-  this.lastAnimationTime = now;
-  
-  // Wichtig: Wir rechnen den Index hier aus
-  let i = this.currentImage % images.length;
-  let path = images[i];
-  this.img = this.imageCache[path];
-  this.currentImage++;
 }
 
   /**

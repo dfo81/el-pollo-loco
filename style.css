@@ -319,14 +319,3 @@ canvas {
 #btnPause.gamePaused {
   content: url(./assets/icons/play.png);
 }
-
-a {
-  text-decoration: none;
-  color: #ffa42f;
-  transition: 250ms ease-in-out;
-}
-
-a:hover {
-  text-shadow: 0 5px 5px #bd5633;
-  color: white;
-}

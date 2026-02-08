@@ -47,7 +47,7 @@ class CollisionManager {
   checkProjectileCollisions() {
     this.world.throwableObjects.forEach((bottle) => {
       this.world.level.enemies.forEach((enemy) => {
-        if (bottle.isColliding(enemy) && !bottle.hasSplashed) {
+        if (bottle.isCollidingSwept(enemy) && !bottle.hasSplashed) {
           if (enemy instanceof Boss) {
             bottle.splash();
             enemy.hit();

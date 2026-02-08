@@ -7,8 +7,20 @@ class ThrowableObject extends MovableObject {
   width = 80;
   hasSplashed = false;
 
-  IMAGES_BOTTLE = ["assets/img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png", "assets/img/6_salsa_bottle/bottle_rotation/2_bottle_rotation.png", "assets/img/6_salsa_bottle/bottle_rotation/3_bottle_rotation.png", "assets/img/6_salsa_bottle/bottle_rotation/4_bottle_rotation.png"];
-  IMAGES_SPLASH = ["assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/1_bottle_splash.png", "assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/2_bottle_splash.png", "assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/3_bottle_splash.png", "assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/4_bottle_splash.png", "assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/5_bottle_splash.png", "assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/6_bottle_splash.png"];
+  IMAGES_BOTTLE = [
+    "assets/img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png",
+    "assets/img/6_salsa_bottle/bottle_rotation/2_bottle_rotation.png",
+    "assets/img/6_salsa_bottle/bottle_rotation/3_bottle_rotation.png",
+    "assets/img/6_salsa_bottle/bottle_rotation/4_bottle_rotation.png",
+  ];
+  IMAGES_SPLASH = [
+    "assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/1_bottle_splash.png",
+    "assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/2_bottle_splash.png",
+    "assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/3_bottle_splash.png",
+    "assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/4_bottle_splash.png",
+    "assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/5_bottle_splash.png",
+    "assets/img/6_salsa_bottle/bottle_rotation/bottle_splash/6_bottle_splash.png",
+  ];
 
   /**
    * Creates a bottle and starts the throw logic.
@@ -22,8 +34,17 @@ class ThrowableObject extends MovableObject {
     this.loadImages(this.IMAGES_SPLASH);
     this.x = x;
     this.y = y;
+    this.lastX = x;
+    this.lastY = y;
+
     this.otherDirection = otherDirection;
     this.throw();
+    this.offset = {
+      top: 30,
+      bottom: 30,
+      left: 15,
+      right: 15,
+    };
   }
 
   /**
@@ -41,10 +62,12 @@ class ThrowableObject extends MovableObject {
    * Manages horizontal movement during flight.
    */
   startFlightMovement() {
-    this.accelerationInterval = setInterval(() => {
-      this.x += this.otherDirection ? -15 : 15;
-    }, 15);
-  }
+  this.accelerationInterval = setInterval(() => {
+    this.lastX = this.x;
+    this.lastY = this.y;
+    this.x += this.otherDirection ? -15 : 15;
+  }, 15);
+}
 
   /**
    * Starts the rotation animation for the flying bottle.
@@ -97,4 +120,24 @@ class ThrowableObject extends MovableObject {
       this.opacity = 0;
     }
   }
+  
+  /**
+ * Swept collision check to prevent tunneling.
+ * @param {MovableObject} enemy
+ * @returns {boolean}
+ */
+isCollidingSwept(enemy) {
+  const minX = Math.min(this.lastX, this.x);
+  const maxX = Math.max(this.lastX + this.width, this.x + this.width);
+
+  const minY = Math.min(this.lastY, this.y);
+  const maxY = Math.max(this.lastY + this.height, this.y + this.height);
+
+  return (
+    maxX > enemy.x + enemy.offset.left &&
+    minX < enemy.x + enemy.width - enemy.offset.right &&
+    maxY > enemy.y + enemy.offset.top &&
+    minY < enemy.y + enemy.height - enemy.offset.bottom
+  );
+}
 }

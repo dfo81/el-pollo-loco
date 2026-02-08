@@ -85,8 +85,8 @@ class World {
     this.character.start();
     this.level.enemies.forEach((enemy) => enemy.animate());
     this.level.coins.forEach((coin) => coin.animate());
-    this.level.clouds.forEach((cloud) => cloud.animate()); // Dieser Aufruf fehlte!
-  }
+    this.level.clouds.forEach((cloud) => cloud.animate());
+}
 
   /**
    * Checks if the throw key is pressed and validates timing/bottle count.

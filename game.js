@@ -1,40 +1,76 @@
-/** @type {HTMLCanvasElement} */
+/**
+ * Main game control and input handling module.
+ * Handles keyboard input, game lifecycle, audio, fullscreen,
+ * orientation handling and the global game task engine.
+ */
+
+/** @type {HTMLCanvasElement|null} Canvas element used for rendering */
 let canvas;
-/** @type {World} */
+
+/** @type {World|null} Current game world instance */
 let world;
-/** @type {Keys} */
+
+/** @type {Keys} Keyboard input state container */
 let keyboard = new Keys();
-/** @type {Sounds} */
+
+/** @type {Sounds} Global sound registry */
 let sounds = new Sounds();
-/** @type {Object<string, boolean>} */
+
+/**
+ * Tracks keydown state to prevent repeated triggers.
+ * @type {Object<string, boolean>}
+ */
 let isKeyDown = {};
-/** @type {Array<{owner: object, action: function, interval: number, lastRun: number}>} */
+
+/**
+ * Registered game engine tasks.
+ * @type {Array<{owner: object, action: Function, interval: number, lastRun: number}>}
+ */
 let gameTasks = [];
-/** @type {boolean} */
+
+/** @type {boolean} Indicates whether the game is currently paused */
 let gamePaused = true;
-/** @type {boolean} */
+
+/** @type {boolean} Indicates whether the game has been started */
+let gameRunning = false;
+
+/** @type {boolean} Indicates whether music is enabled */
 let music = localStorage.getItem("music") === "true";
 
+/**
+ * Global keydown listener.
+ * Prevents repeated triggers while a key is held.
+ */
 window.addEventListener("keydown", (e) => {
   if (!isKeyDown[e.code]) handleKeyDown(e.code);
   isKeyDown[e.code] = true;
 });
 
 /**
- * Routes key codes to specific actions and updates state.
- * @param {string} code 
+ * Routes key codes to specific game actions.
+ * Ignores input if the game is not running or already won.
+ *
+ * @param {string} code - Keyboard event code (e.g. "ArrowLeft", "Space")
  */
 function handleKeyDown(code) {
-  if (code === "Space") keyboard.JUMP_ONCE = true;
-  if (code === "KeyD") keyboard.THROW_ONCE = true;
-  if (code === "ArrowLeft") keyboard.LEFT = true;
-  if (code === "ArrowRight") keyboard.RIGHT = true;
-  if (code === "KeyF") toggleFullscreen();
-  if (code === "KeyS") toggleSound();
-  if (code === "KeyP") togglePause();
-  if (code === "KeyL") showLyrics();
+  if (!world || !gameRunning) return;
+
+  if (!world.gameWon) {
+    if (code === "Space") keyboard.JUMP_ONCE = true;
+    if (code === "KeyD") keyboard.THROW_ONCE = true;
+    if (code === "ArrowLeft") keyboard.LEFT = true;
+    if (code === "ArrowRight") keyboard.RIGHT = true;
+    if (code === "KeyF") toggleFullscreen();
+    if (code === "KeyS") toggleSound();
+    if (code === "KeyP") togglePause();
+    if (code === "KeyL") showLyrics();
+  }
 }
 
+/**
+ * Global keyup listener.
+ * Resets movement keys when released.
+ */
 window.addEventListener("keyup", (e) => {
   isKeyDown[e.code] = false;
   if (e.code === "ArrowLeft") keyboard.LEFT = false;
@@ -42,7 +78,7 @@ window.addEventListener("keyup", (e) => {
 });
 
 /**
- * Updates music button appearance and binds touch events.
+ * Initializes UI state and binds mobile touch controls.
  */
 function init() {
   const musicBtn = document.getElementById("music");
@@ -54,48 +90,55 @@ function init() {
 }
 
 /**
- * Initializes world and starts gameplay.
+ * Starts a new game session.
+ * Initializes the level, world and audio.
  */
 function startGame() {
+  gameRunning = true;
   hideAllOverlays();
   removeTasksOfObject(world);
   initLevel();
   resetGameState();
+
   canvas = document.getElementById("canvas");
   world = new World(canvas, keyboard, sounds);
   world.startGame();
+
   if (music) sounds.MUSIC.playFromStart();
 }
 
 /**
- * Persists sound setting and updates audio state.
+ * Toggles music on/off and persists the setting.
  */
 function toggleSound() {
   music = !music;
   localStorage.setItem("music", music);
+
   if (!music) {
     stopAllGameSounds();
   } else if (!gamePaused && world) {
-    const track = world.bossFirstContact ? sounds.BOSS_MUSIC : sounds.MUSIC;
+    const track = world.bossFirstContact
+      ? sounds.BOSS_MUSIC
+      : sounds.MUSIC;
     track.play();
   }
   init();
 }
 
 /**
- * Halts every active sound in the registry.
+ * Stops all currently playing sounds.
  */
 function stopAllGameSounds() {
-  Object.keys(sounds).forEach(key => {
+  Object.keys(sounds).forEach((key) => {
     const sound = sounds[key];
-    if (sound && typeof sound.stop === 'function') {
+    if (sound && typeof sound.stop === "function") {
       sound.stop();
     }
   });
 }
 
 /**
- * Handles canvas fullscreen toggle.
+ * Toggles fullscreen mode for the game container.
  */
 function toggleFullscreen() {
   const container = document.getElementById("game");
@@ -107,10 +150,12 @@ function toggleFullscreen() {
 }
 
 /**
- * Global engine interval processing registered tasks.
+ * Global game engine loop.
+ * Executes registered tasks at their defined intervals.
  */
 setInterval(() => {
   if (gamePaused) return;
+
   gameTasks.forEach((task) => {
     const now = performance.now();
     if (now - task.lastRun >= task.interval) {
@@ -121,29 +166,49 @@ setInterval(() => {
 }, 1000 / 60);
 
 /**
- * Queues a task for the engine.
+ * Registers a recurring task in the game engine.
+ *
+ * @param {object} owner - Object owning the task
+ * @param {Function} action - Function to execute
+ * @param {number} interval - Interval in milliseconds
  */
 function addGameTask(owner, action, interval) {
   gameTasks.push({ owner, action, interval, lastRun: 0 });
 }
 
 /**
- * Clears tasks associated with an owner.
+ * Removes all tasks belonging to a specific owner.
+ *
+ * @param {object} owner - Task owner
  */
 function removeTasksOfObject(owner) {
   gameTasks = gameTasks.filter((task) => task.owner !== owner);
 }
 
 /**
- * Binds mobile touch listeners to movement keys.
+ * Binds touch controls for mobile input.
  */
 function bindTouchEvents() {
+  /**
+   * Helper for binding touch buttons.
+   * @param {string} id - Button element ID
+   * @param {string} key - Keyboard state key
+   */
   const bindBtn = (id, key) => {
     const btn = document.getElementById(id);
     if (!btn) return;
-    btn.addEventListener("touchstart", (e) => { e.preventDefault(); keyboard[key] = true; });
-    btn.addEventListener("touchend", (e) => { e.preventDefault(); keyboard[key] = false; });
+
+    btn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      keyboard[key] = true;
+    });
+
+    btn.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      keyboard[key] = false;
+    });
   };
+
   bindBtn("btnLeft", "LEFT");
   bindBtn("btnRight", "RIGHT");
   bindBtn("btnJump", "JUMP_ONCE");
@@ -154,18 +219,20 @@ window.addEventListener("resize", checkOrientation);
 window.addEventListener("load", checkOrientation);
 
 /**
- * Pauses game if screen is in portrait.
+ * Pauses the game if the device is in portrait orientation.
  */
 function checkOrientation() {
-  gamePaused = window.innerHeight > window.innerWidth;
+  if (gameRunning) {
+    gamePaused = window.innerHeight > window.innerWidth;
+  }
 }
 
 /**
- * Hides UI overlays and shows play buttons.
+ * Hides all overlay screens and shows in-game UI.
  */
 function hideAllOverlays() {
   const overlays = ["startScreen", "winScreen", "loseScreen", "lyrics", "menu"];
-  overlays.forEach(id => {
+  overlays.forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.classList.add("d-none");
   });
@@ -173,7 +240,7 @@ function hideAllOverlays() {
 }
 
 /**
- * Resets engine state variables.
+ * Resets global game state variables.
  */
 function resetGameState() {
   gamePaused = false;
@@ -181,27 +248,50 @@ function resetGameState() {
 }
 
 /**
- * Toggles lyrics UI and game pause state.
+ * Displays the lyrics overlay.
  */
 function showLyrics() {
-  const lyrics = document.getElementById("lyrics");
-  if (!lyrics) return;
-  lyrics.classList.toggle("d-none");
-  const pauseBtn = document.getElementById("btnPause");
-  if (pauseBtn) pauseBtn.style.visibility = lyrics.classList.contains("d-none") ? "visible" : "hidden";
-  if (world) togglePause();
+  document.getElementById("lyrics").classList.remove("d-none");
 }
 
 /**
- * Switches pause state and manages environmental audio.
+ * Toggles pause state and manages background music.
  */
 function togglePause() {
   gamePaused = !gamePaused;
+
   if (gamePaused) {
     stopAllGameSounds();
   } else if (music) {
-    const track = world?.bossFirstContact ? sounds.BOSS_MUSIC : sounds.MUSIC;
+    const track = world?.bossFirstContact
+      ? sounds.BOSS_MUSIC
+      : sounds.MUSIC;
     track.play();
   }
-  document.getElementById("btnPause")?.classList.toggle("gamePaused", gamePaused);
+
+  document
+    .getElementById("btnPause")
+    ?.classList.toggle("gamePaused", gamePaused);
+}
+
+/**
+ * Displays the impressum screen.
+ */
+function impressum() {
+  document.getElementById("impressum").classList.remove("d-none");
+  document.getElementById("menu").classList.add("d-none");
+}
+
+/**
+ * Hides overlays and restores the menu depending on game state.
+ */
+function hide() {
+  document.getElementById("impressum").classList.add("d-none");
+  document.getElementById("lyrics").classList.add("d-none");
+
+  if (!gameRunning || gamePaused) {
+    document.getElementById("menu").classList.remove("d-none");
+  } else {
+    document.getElementById("menu").classList.add("d-none");
+  }
 }

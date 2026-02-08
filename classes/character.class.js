@@ -298,19 +298,17 @@ class Character extends MovableObject {
    * Executes the jump after a short delay.
    */
   executeJump() {
-    setTimeout(() => {
-      if (!this.isDead()) {
-        this.speedY = 20;
-        sounds?.JUMP?.play();
-      }
-    }, 150);
+    if (!this.isDead()) {
+      this.speedY = 20;
+      sounds?.JUMP?.play();
+    }
   }
 
   /**
    * Controls jump animation behavior while airborne.
    */
   handleJumpAnimation() {
-    if (this.isAboveGround() || this.currentImage < 3) {
+    if (this.isAboveGround()) {
       if (this.speedY > 0 || this.currentImage < 6) {
         if (this.currentImage < 6) {
           this.playAnimation(this.IMAGES_JUMPING, 15);
